@@ -1,0 +1,16 @@
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+
+build/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VSCode related
+.vscode/
