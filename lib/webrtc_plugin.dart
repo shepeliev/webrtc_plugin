@@ -1,13 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-
-class WebrtcPlugin {
-  static const MethodChannel _channel =
-      const MethodChannel('webrtc_plugin');
-
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-}
+export 'src/texture_renderer.dart';
+export 'src/widget/video_track_view.dart';
+export 'src/video_source.dart';
+export 'src/video_track.dart';

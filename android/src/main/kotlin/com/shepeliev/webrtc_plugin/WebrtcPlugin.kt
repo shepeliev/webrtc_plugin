@@ -1,25 +1,31 @@
 package com.shepeliev.webrtc_plugin
 
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import com.shepeliev.webrtc_plugin.plugin.DefaultMethodChannelRegistry
+import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
+import com.shepeliev.webrtc_plugin.webrtc.DefaultCameraCapturer
+import com.shepeliev.webrtc_plugin.webrtc.PCF
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-class WebrtcPlugin: MethodCallHandler {
-  companion object {
+const val METHOD_CHANNEL_NAME = "flutter.shepeliev.com/webrtc"
+
+object WebrtcPlugin {
+    internal lateinit var pluginRegistry: PluginRegistry
+    private lateinit var methodChannelRegistry: DefaultMethodChannelRegistry
+
     @JvmStatic
     fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "webrtc_plugin")
-      channel.setMethodCallHandler(WebrtcPlugin())
-    }
-  }
+        PCF.initialize(registrar.context())
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+        val globalPlugins = listOf(
+            FlutterVideoSourceFactory(registrar.context(), PCF.instance, DefaultCameraCapturer),
+            FlutterVideoTrackFactory(PCF.instance),
+            FlutterTextureRendererFactory(registrar)
+        )
+
+        methodChannelRegistry = DefaultMethodChannelRegistry(
+            registrar,
+            globalPlugins
+        )
+        pluginRegistry = PluginRegistry(methodChannelRegistry)
     }
-  }
 }

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
 
@@ -12,7 +12,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  VideoSource _videoSource;
+  VideoTrack _videoTrack;
+  TextureRenderer _textureRenderer;
 
   @override
   void initState() {
@@ -20,37 +22,58 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
+    VideoSource videoSource;
+    VideoTrack videoTrack;
+    TextureRenderer renderer;
     try {
-      platformVersion = await WebrtcPlugin.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      videoSource = await VideoSource.create();
+      videoTrack = await VideoTrack.create(videoSource);
+      renderer = await TextureRenderer.create();
+      await videoTrack.addRenderer(renderer);
+      await videoSource.startCapture(width: 1280, height: 720, fps: 30);
+    } on PlatformException catch (e) {
+      print(e);
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
+    if (!mounted) {
+      await renderer.dispose();
+      await videoTrack.dispose();
+      await videoSource.dispose();
+      return;
+    }
 
     setState(() {
-      _platformVersion = platformVersion;
+      _videoSource = videoSource;
+      _videoTrack = videoTrack;
+      _textureRenderer = renderer;
     });
+  }
+
+  Future<bool> _disposeVideo() async {
+    await _textureRenderer.dispose();
+    await _videoTrack.dispose();
+    await _videoSource.dispose();
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
+    final child = _textureRenderer != null
+        ? VideoTrackView(textureRenderer: _textureRenderer)
+        : Text("Opening camera");
+
     return MaterialApp(
-      home: Scaffold(
+        home: WillPopScope(
+      onWillPop: _disposeVideo,
+      child: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: child,
         ),
       ),
-    );
+    ));
   }
 }
