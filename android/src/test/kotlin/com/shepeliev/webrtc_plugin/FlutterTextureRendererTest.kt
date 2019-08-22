@@ -26,16 +26,11 @@ class FlutterTextureRendererTest {
     @get:Rule
     val mockitoRule = MockitoJUnit.rule()!!
 
-    @Mock
-    private lateinit var registrar: Registrar
-    @Mock
-    private lateinit var textureRegistry: TextureRegistry
-    @Mock
-    private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
-    @Mock
-    private lateinit var texture: SurfaceTexture
-    @Mock
-    private lateinit var backendRegistry: FlutterBackendRegistry
+    @Mock private lateinit var registrar: Registrar
+    @Mock private lateinit var textureRegistry: TextureRegistry
+    @Mock private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
+    @Mock private lateinit var texture: SurfaceTexture
+    @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val textureId = Random(1).nextLong()
     private lateinit var renderer: FlutterTextureRenderer
