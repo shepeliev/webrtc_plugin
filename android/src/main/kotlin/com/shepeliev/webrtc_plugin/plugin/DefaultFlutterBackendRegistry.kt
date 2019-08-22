@@ -1,6 +1,6 @@
 package com.shepeliev.webrtc_plugin.plugin
 
-internal interface PluginRegistry {
+internal interface FlutterBackendRegistry {
     val allBackends: Collection<FlutterBackend>
 
     fun add(backend: FlutterBackend)
@@ -10,7 +10,9 @@ internal interface PluginRegistry {
     operator fun <T> get(id: String): T
 }
 
-internal class DefaultPluginRegistry(private val methodChannelRegistry: MethodChannelRegistry) : PluginRegistry {
+internal class DefaultFlutterBackendRegistry(
+    private val methodChannelRegistry: MethodChannelRegistry
+) : FlutterBackendRegistry {
     private val plugins = mutableMapOf<String, FlutterBackend>()
 
     override val allBackends: Collection<FlutterBackend>

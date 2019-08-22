@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -30,7 +30,7 @@ class FlutterVideoSourceFactoryTest {
 
     @Before
     fun setUp() {
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
         whenever(peerConnectionFactory.createVideoSource(any())) doReturn videoSource
         factory = FlutterVideoSourceFactory(app, peerConnectionFactory, cameraCapturer)
     }
@@ -48,7 +48,7 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", args)) as String
 
         verify(peerConnectionFactory).createVideoSource(false)
-        assertThat(WebrtcPlugin.pluginRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
     }
 
     @Test
@@ -58,7 +58,7 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", null)) as String
 
         verify(peerConnectionFactory).createVideoSource(false)
-        assertThat(WebrtcPlugin.pluginRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
     }
 
     @Test
@@ -69,6 +69,6 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", args)) as String
 
         verify(peerConnectionFactory).createVideoSource(true)
-        assertThat(WebrtcPlugin.pluginRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
     }
 }

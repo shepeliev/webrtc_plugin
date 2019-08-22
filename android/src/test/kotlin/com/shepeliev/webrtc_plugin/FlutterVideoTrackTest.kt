@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.newId
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -30,14 +30,14 @@ class FlutterVideoTrackTest {
     @Before
     fun setUp() {
         ShadowBuild.setManufacturer("robolectric")
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
         whenever(videoTrack.id()) doReturn newId()
         flutterVideoTrack = FlutterVideoTrack(videoTrack)
     }
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends).contains(flutterVideoTrack)
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends).contains(flutterVideoTrack)
     }
 
     @Test
@@ -55,7 +55,7 @@ class FlutterVideoTrackTest {
         val renderer = mock<FlutterTextureRenderer> {
             on { id } doReturn rendererId
         }
-        WebrtcPlugin.pluginRegistry.add(renderer)
+        WebrtcPlugin.flutterBackendRegistry.add(renderer)
 
         val handler = flutterVideoTrack.methodHandlers.getValue("addRenderer")
         handler(MethodCall("addRenderer", mapOf("rendererId" to rendererId)))
@@ -69,7 +69,7 @@ class FlutterVideoTrackTest {
         val renderer = mock<FlutterTextureRenderer> {
             on { id } doReturn rendererId
         }
-        WebrtcPlugin.pluginRegistry.add(renderer)
+        WebrtcPlugin.flutterBackendRegistry.add(renderer)
 
         val handler = flutterVideoTrack.methodHandlers.getValue("removeRenderer")
         handler(MethodCall("removeRenderer", mapOf("rendererId" to rendererId)))
@@ -83,6 +83,6 @@ class FlutterVideoTrackTest {
         handler(MethodCall("dispose", null))
 
         verify(videoTrack).dispose()
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends).isEmpty()
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends).isEmpty()
     }
 }

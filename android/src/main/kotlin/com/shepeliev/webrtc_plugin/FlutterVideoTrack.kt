@@ -17,7 +17,7 @@ internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
     )
 
     init {
-        WebrtcPlugin.pluginRegistry.add(this)
+        WebrtcPlugin.flutterBackendRegistry.add(this)
     }
 
     fun removeSink(sink: VideoSink) {
@@ -39,13 +39,13 @@ internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
     private fun getRenderer(methodCall: MethodCall): FlutterTextureRenderer {
         val rendererId: String = methodCall.argument("rendererId")
             ?: error { "'rendererId' argument required" }
-        return WebrtcPlugin.pluginRegistry[rendererId]
+        return WebrtcPlugin.flutterBackendRegistry[rendererId]
     }
 
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
         videoTrack.dispose()
-        WebrtcPlugin.pluginRegistry.remove(this)
+        WebrtcPlugin.flutterBackendRegistry.remove(this)
         return null
     }
 }

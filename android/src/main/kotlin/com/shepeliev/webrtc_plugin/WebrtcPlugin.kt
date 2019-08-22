@@ -1,8 +1,8 @@
 package com.shepeliev.webrtc_plugin
 
 import com.shepeliev.webrtc_plugin.plugin.DefaultMethodChannelRegistry
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
-import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.webrtc.DefaultCameraCapturer
 import com.shepeliev.webrtc_plugin.webrtc.PCF
 import io.flutter.plugin.common.PluginRegistry.Registrar
@@ -10,7 +10,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 const val METHOD_CHANNEL_NAME = "flutter.shepeliev.com/webrtc"
 
 object WebrtcPlugin {
-    internal lateinit var pluginRegistry: PluginRegistry
+    internal lateinit var flutterBackendRegistry: FlutterBackendRegistry
     private lateinit var methodChannelRegistry: DefaultMethodChannelRegistry
 
     @JvmStatic
@@ -27,6 +27,6 @@ object WebrtcPlugin {
             registrar,
             globalPlugins
         )
-        pluginRegistry = DefaultPluginRegistry(methodChannelRegistry)
+        flutterBackendRegistry = DefaultFlutterBackendRegistry(methodChannelRegistry)
     }
 }

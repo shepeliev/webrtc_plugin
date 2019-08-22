@@ -2,7 +2,7 @@ package com.shepeliev.webrtc_plugin
 
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.newId
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -26,13 +26,13 @@ class FlutterVideoTrackFactoryTest {
 
     @Before
     fun setUp() {
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
 
         whenever(peerConnectionFactory.createVideoTrack(any(), any())) doReturn videoTrack
         whenever(flutterVideoSource.id) doReturn videoSourceId
         whenever(flutterVideoSource.videoSource) doReturn videoSource
 
-        WebrtcPlugin.pluginRegistry.add(flutterVideoSource)
+        WebrtcPlugin.flutterBackendRegistry.add(flutterVideoSource)
         factory = FlutterVideoTrackFactory(peerConnectionFactory)
     }
 
@@ -52,6 +52,6 @@ class FlutterVideoTrackFactoryTest {
 
         verify(peerConnectionFactory).createVideoTrack(any(), eq(videoSource))
         assertThat(id).isEqualTo(videoTrackId)
-        assertThat(WebrtcPlugin.pluginRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
     }
 }

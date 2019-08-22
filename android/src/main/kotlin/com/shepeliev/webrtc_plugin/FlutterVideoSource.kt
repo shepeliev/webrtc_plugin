@@ -28,7 +28,7 @@ internal class FlutterVideoSource(
     )
 
     init {
-        WebrtcPlugin.pluginRegistry.add(this)
+        WebrtcPlugin.flutterBackendRegistry.add(this)
     }
 
     private fun startCapture(methodCall: MethodCall): Nothing? {
@@ -55,7 +55,7 @@ internal class FlutterVideoSource(
     private fun dispose(methodCall: MethodCall): Nothing? {
         cameraCapturer.stopCapture()
         videoSource.dispose()
-        WebrtcPlugin.pluginRegistry.remove(this)
+        WebrtcPlugin.flutterBackendRegistry.remove(this)
         return null
     }
 }

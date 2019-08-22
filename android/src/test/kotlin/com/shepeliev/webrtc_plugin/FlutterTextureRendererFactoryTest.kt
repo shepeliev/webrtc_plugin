@@ -5,7 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -38,7 +38,7 @@ class FlutterTextureRendererFactoryTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
 
         factory = FlutterTextureRendererFactory(registrar)
     }
@@ -55,7 +55,7 @@ class FlutterTextureRendererFactoryTest {
         @Suppress("UNCHECKED_CAST")
         val result = handler(MethodCall("createTextureRenderer", null)) as Map<String, Any?>
 
-        val plugin: FlutterTextureRenderer = WebrtcPlugin.pluginRegistry[result["id"].toString()]
+        val plugin: FlutterTextureRenderer = WebrtcPlugin.flutterBackendRegistry[result["id"].toString()]
         assertThat(result).isEqualTo(mapOf("id" to plugin.id, "textureId" to textureId))
     }
 }

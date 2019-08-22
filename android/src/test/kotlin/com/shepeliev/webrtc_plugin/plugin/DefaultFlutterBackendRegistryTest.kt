@@ -9,19 +9,19 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class DefaultPluginRegistryTest {
+class DefaultFlutterBackendRegistryTest {
 
     @Mock private lateinit var methodChannelRegistry: MethodChannelRegistry
 
     private lateinit var fakePlugin1: FakeBackend
     private lateinit var fakePlugin2: FakeBackend
-    private lateinit var registry: DefaultPluginRegistry
+    private lateinit var registry: DefaultFlutterBackendRegistry
 
     @Before
     fun setUp() {
         fakePlugin1 = FakeBackend()
         fakePlugin2 = FakeBackend()
-        registry = DefaultPluginRegistry(methodChannelRegistry)
+        registry = DefaultFlutterBackendRegistry(methodChannelRegistry)
     }
 
     @Test

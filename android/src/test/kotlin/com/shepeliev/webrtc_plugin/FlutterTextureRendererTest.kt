@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -42,14 +42,14 @@ class FlutterTextureRendererTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
 
         renderer = FlutterTextureRenderer(registrar)
     }
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends).contains(renderer)
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends).contains(renderer)
     }
 
     @Test
@@ -81,7 +81,7 @@ class FlutterTextureRendererTest {
             on { id() } doReturn UUID.randomUUID().toString()
         }
         val flutterVideoTrack = FlutterVideoTrack(videoTack)
-        WebrtcPlugin.pluginRegistry.add(flutterVideoTrack)
+        WebrtcPlugin.flutterBackendRegistry.add(flutterVideoTrack)
 
         val handler = renderer.methodHandlers.getValue("dispose")
 
@@ -90,6 +90,6 @@ class FlutterTextureRendererTest {
         verify(texture).release()
         verify(textureEntry).release()
         verify(videoTack).removeSink(renderer)
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends).doesNotContain(renderer)
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends).doesNotContain(renderer)
     }
 }

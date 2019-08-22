@@ -23,6 +23,6 @@ internal class FlutterVideoTrackFactory(private val peerConnectionFactory: PeerC
     private fun getFlutterVideoSource(methodCall: MethodCall): FlutterVideoSource {
         val id = methodCall.argument<String>("videoSourceId")
             ?: error("'videoSourceId' is required")
-        return WebrtcPlugin.pluginRegistry[id]
+        return WebrtcPlugin.flutterBackendRegistry[id]
     }
 }

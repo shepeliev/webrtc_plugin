@@ -5,7 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -29,7 +29,7 @@ class FlutterVideoSourceTest {
 
     @Before
     fun setUp() {
-        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
+        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
         flutterVideoSource = FlutterVideoSource(app, videoSource, cameraCapturer)
     }
 
@@ -38,7 +38,7 @@ class FlutterVideoSourceTest {
         val flutterVideoSource2 = FlutterVideoSource(app, videoSource, cameraCapturer)
 
         assertThat(flutterVideoSource.id).isNotEqualTo(flutterVideoSource2.id)
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends)
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends)
             .containsAnyOf(flutterVideoSource, flutterVideoSource2)
     }
 
@@ -116,6 +116,6 @@ class FlutterVideoSourceTest {
 
         verify(cameraCapturer).stopCapture()
         verify(videoSource).dispose()
-        assertThat(WebrtcPlugin.pluginRegistry.allBackends).doesNotContain(flutterVideoSource)
+        assertThat(WebrtcPlugin.flutterBackendRegistry.allBackends).doesNotContain(flutterVideoSource)
     }
 }

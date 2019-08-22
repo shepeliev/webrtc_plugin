@@ -40,7 +40,7 @@ internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), F
             init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
         }
 
-        WebrtcPlugin.pluginRegistry.add(this)
+        WebrtcPlugin.flutterBackendRegistry.add(this)
     }
 
     override fun onFrame(frame: VideoFrame) {
@@ -51,13 +51,13 @@ internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), F
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
         Log.d(TAG, "Dispose $this.")
-        WebrtcPlugin.pluginRegistry.allBackends
+        WebrtcPlugin.flutterBackendRegistry.allBackends
             .filterIsInstance<FlutterVideoTrack>()
             .forEach { it.removeSink(this) }
         release()
         texture.release()
         textureEntry.release()
-        WebrtcPlugin.pluginRegistry.remove(this)
+        WebrtcPlugin.flutterBackendRegistry.remove(this)
         return null
     }
 }
