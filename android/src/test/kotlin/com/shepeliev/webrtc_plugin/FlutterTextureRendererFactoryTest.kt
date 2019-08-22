@@ -2,10 +2,9 @@ package com.shepeliev.webrtc_plugin
 
 import android.graphics.SurfaceTexture
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -27,6 +26,7 @@ class FlutterTextureRendererFactoryTest {
     @Mock private lateinit var textureRegistry: TextureRegistry
     @Mock private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
     @Mock private lateinit var texture: SurfaceTexture
+    @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val textureId = Random(System.currentTimeMillis()).nextLong()
     private lateinit var factory: FlutterTextureRendererFactory
@@ -38,9 +38,8 @@ class FlutterTextureRendererFactoryTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
-        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
 
-        factory = FlutterTextureRendererFactory(registrar)
+        factory = FlutterTextureRendererFactory(registrar, backendRegistry)
     }
 
     @Test
@@ -55,7 +54,11 @@ class FlutterTextureRendererFactoryTest {
         @Suppress("UNCHECKED_CAST")
         val result = handler(MethodCall("createTextureRenderer", null)) as Map<String, Any?>
 
-        val plugin: FlutterTextureRenderer = WebrtcPlugin.flutterBackendRegistry[result["id"].toString()]
-        assertThat(result).isEqualTo(mapOf("id" to plugin.id, "textureId" to textureId))
+        argumentCaptor<FlutterTextureRenderer>().apply {
+            verify(backendRegistry).add(capture())
+            assertThat(firstValue.id).isEqualTo(result["id"])
+            assertThat(firstValue.textureId).isEqualTo(result["textureId"])
+            assertThat(result).isEqualTo(mapOf("id" to firstValue.id, "textureId" to textureId))
+        }
     }
 }

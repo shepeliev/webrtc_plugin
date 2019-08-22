@@ -2,7 +2,7 @@ package com.shepeliev.webrtc_plugin
 
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.newId
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -20,20 +20,18 @@ class FlutterVideoTrackFactoryTest {
     @Mock private lateinit var flutterVideoSource: FlutterVideoSource
     @Mock private lateinit var videoSource: VideoSource
     @Mock private lateinit var videoTrack: VideoTrack
+    @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val videoSourceId = newId()
     private lateinit var factory: FlutterVideoTrackFactory
 
     @Before
     fun setUp() {
-        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
-
+        whenever(backendRegistry.get<FlutterVideoSource>(videoSourceId)) doReturn flutterVideoSource
         whenever(peerConnectionFactory.createVideoTrack(any(), any())) doReturn videoTrack
-        whenever(flutterVideoSource.id) doReturn videoSourceId
         whenever(flutterVideoSource.videoSource) doReturn videoSource
 
-        WebrtcPlugin.flutterBackendRegistry.add(flutterVideoSource)
-        factory = FlutterVideoTrackFactory(peerConnectionFactory)
+        factory = FlutterVideoTrackFactory(peerConnectionFactory, backendRegistry)
     }
 
     @Test
@@ -52,6 +50,9 @@ class FlutterVideoTrackFactoryTest {
 
         verify(peerConnectionFactory).createVideoTrack(any(), eq(videoSource))
         assertThat(id).isEqualTo(videoTrackId)
-        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        argumentCaptor<FlutterVideoTrack>().apply {
+            verify(backendRegistry).add(capture())
+            assertThat(firstValue.id).isEqualTo(id)
+        }
     }
 }

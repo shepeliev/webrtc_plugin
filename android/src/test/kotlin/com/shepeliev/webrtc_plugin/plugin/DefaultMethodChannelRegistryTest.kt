@@ -15,9 +15,12 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class DefaultMethodChannelRegistryTest {
-    @Mock private lateinit var registrar: Registrar
-    @Mock private lateinit var binaryMessenger: BinaryMessenger
-    @Mock private lateinit var methodChannelFactory: MethodChannelFactory
+    @Mock
+    private lateinit var registrar: Registrar
+    @Mock
+    private lateinit var binaryMessenger: BinaryMessenger
+    @Mock
+    private lateinit var methodChannelFactory: MethodChannelFactory
 
     @Before
     fun setUp() {
@@ -28,14 +31,12 @@ class DefaultMethodChannelRegistryTest {
     }
 
     @Test
-    fun constructor() {
+    fun addGlobalBackends() {
         val fooPlugin = FooBackend()
         val bazPlugin = BarBackend()
-        val registry = DefaultMethodChannelRegistry(
-            registrar,
-            listOf(fooPlugin, bazPlugin),
-            methodChannelFactory
-        )
+        val registry = DefaultMethodChannelRegistry(registrar, methodChannelFactory)
+
+        registry.addGlobalBackends(listOf(fooPlugin, bazPlugin))
 
         assertThat(registry.methodChannels).hasSize(1)
         assertThat(registry.methodChannels.keys).containsExactly(METHOD_CHANNEL_NAME)
@@ -52,27 +53,21 @@ class DefaultMethodChannelRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun constructor_duplicate_global_method() {
+    fun addGlobalBAckends_duplicate_global_method() {
         val fooPlugin = FooBackend()
         val bazPlugin = BarBackend()
         val fooBarPlugin = FooBarBackend()
-        DefaultMethodChannelRegistry(
-            registrar,
-            listOf(fooPlugin, bazPlugin, fooBarPlugin),
-            methodChannelFactory
-        )
+        val registry = DefaultMethodChannelRegistry(registrar, methodChannelFactory)
+
+        registry.addGlobalBackends(listOf(fooPlugin, bazPlugin, fooBarPlugin))
     }
 
     @Test
-    fun addPlugin() {
-        val registry = DefaultMethodChannelRegistry(
-            registrar,
-            emptyList(),
-            methodChannelFactory
-        )
+    fun addFlutterPlugin() {
+        val registry = DefaultMethodChannelRegistry(registrar, methodChannelFactory)
 
         val bazPlugin = BazBackend()
-        registry.addPlugin(bazPlugin)
+        registry.addFlutterBackend(bazPlugin)
 
         assertThat(registry.methodChannels).hasSize(1)
         assertThat(registry.methodChannels.keys).containsExactly(bazPlugin.channelName)
@@ -89,26 +84,18 @@ class DefaultMethodChannelRegistryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun addPlugin_duplicate_plugin() {
-        val registry = DefaultMethodChannelRegistry(
-            registrar,
-            emptyList(),
-            methodChannelFactory
-        )
+        val registry = DefaultMethodChannelRegistry(registrar, methodChannelFactory)
 
         val bazPlugin = BazBackend()
-        registry.addPlugin(bazPlugin)
-        registry.addPlugin(bazPlugin)
+        registry.addFlutterBackend(bazPlugin)
+        registry.addFlutterBackend(bazPlugin)
     }
 
     @Test
     fun removePlugin() {
-        val registry = DefaultMethodChannelRegistry(
-            registrar,
-            emptyList(),
-            methodChannelFactory
-        )
+        val registry = DefaultMethodChannelRegistry(registrar, methodChannelFactory)
         val bazPlugin = BazBackend()
-        registry.addPlugin(bazPlugin)
+        registry.addFlutterBackend(bazPlugin)
 
         registry.removePlugin(bazPlugin)
 

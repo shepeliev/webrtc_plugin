@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -19,18 +19,23 @@ import org.mockito.junit.MockitoJUnit
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowBuild
 import org.webrtc.VideoFrame
-import org.webrtc.VideoTrack
-import java.util.*
 import kotlin.random.Random
 
 @RunWith(RobolectricTestRunner::class)
 class FlutterTextureRendererTest {
-    @get:Rule val mockitoRule = MockitoJUnit.rule()!!
+    @get:Rule
+    val mockitoRule = MockitoJUnit.rule()!!
 
-    @Mock private lateinit var registrar: Registrar
-    @Mock private lateinit var textureRegistry: TextureRegistry
-    @Mock private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
-    @Mock private lateinit var texture: SurfaceTexture
+    @Mock
+    private lateinit var registrar: Registrar
+    @Mock
+    private lateinit var textureRegistry: TextureRegistry
+    @Mock
+    private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
+    @Mock
+    private lateinit var texture: SurfaceTexture
+    @Mock
+    private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val textureId = Random(1).nextLong()
     private lateinit var renderer: FlutterTextureRenderer
@@ -40,16 +45,14 @@ class FlutterTextureRendererTest {
         ShadowBuild.setManufacturer("robolectric")
         whenever(registrar.textures()) doReturn textureRegistry
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
-        whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
-        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
 
-        renderer = FlutterTextureRenderer(registrar)
+        renderer = FlutterTextureRenderer(registrar, backendRegistry)
     }
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.flutterBackendRegistry.all).contains(renderer)
+        verify(backendRegistry).add(renderer)
     }
 
     @Test
@@ -59,6 +62,7 @@ class FlutterTextureRendererTest {
 
     @Test
     fun getTextureId() {
+        whenever(textureEntry.id()) doReturn textureId
         assertThat(renderer.textureId).isEqualTo(textureId)
     }
 
@@ -77,11 +81,8 @@ class FlutterTextureRendererTest {
 
     @Test
     fun dispose() {
-        val videoTack = mock<VideoTrack> {
-            on { id() } doReturn UUID.randomUUID().toString()
-        }
-        val flutterVideoTrack = FlutterVideoTrack(videoTack)
-        WebrtcPlugin.flutterBackendRegistry.add(flutterVideoTrack)
+        val flutterVideoTrack = mock<FlutterVideoTrack>()
+        whenever(backendRegistry.all) doReturn listOf(flutterVideoTrack)
 
         val handler = renderer.methodHandlers.getValue("dispose")
 
@@ -89,7 +90,7 @@ class FlutterTextureRendererTest {
 
         verify(texture).release()
         verify(textureEntry).release()
-        verify(videoTack).removeSink(renderer)
-        assertThat(WebrtcPlugin.flutterBackendRegistry.all).doesNotContain(renderer)
+        verify(flutterVideoTrack).removeSink(renderer)
+        verify(backendRegistry).remove(renderer)
     }
 }

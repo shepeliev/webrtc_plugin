@@ -20,7 +20,7 @@ internal class DefaultFlutterBackendRegistry(
 
     override fun add(backend: FlutterBackend) {
         plugins += (backend.id to backend)
-        methodChannelRegistry.addPlugin(backend)
+        methodChannelRegistry.addFlutterBackend(backend)
     }
 
     override fun remove(backend: FlutterBackend) {

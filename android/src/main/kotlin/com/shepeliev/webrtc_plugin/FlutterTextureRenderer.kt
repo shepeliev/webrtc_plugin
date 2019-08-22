@@ -4,6 +4,7 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import com.shepeliev.webrtc_plugin.plugin.newId
 import com.shepeliev.webrtc_plugin.webrtc.eglBase
@@ -17,7 +18,10 @@ import org.webrtc.VideoFrame
 
 private val TAG = FlutterTextureRenderer::class.java.simpleName
 
-internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), FlutterBackend {
+internal class FlutterTextureRenderer(
+    registrar: Registrar,
+    private val backendRegistry: FlutterBackendRegistry
+) : EglRenderer(""), FlutterBackend {
     private val textureEntry: TextureRegistry.SurfaceTextureEntry
     private val texture: SurfaceTexture
 
@@ -40,7 +44,7 @@ internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), F
             init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
         }
 
-        WebrtcPlugin.flutterBackendRegistry.add(this)
+        backendRegistry.add(this)
     }
 
     override fun onFrame(frame: VideoFrame) {
@@ -51,13 +55,13 @@ internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), F
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
         Log.d(TAG, "Dispose $this.")
-        WebrtcPlugin.flutterBackendRegistry.all
+        backendRegistry.all
             .filterIsInstance<FlutterVideoTrack>()
             .forEach { it.removeSink(this) }
         release()
         texture.release()
         textureEntry.release()
-        WebrtcPlugin.flutterBackendRegistry.remove(this)
+        backendRegistry.remove(this)
         return null
     }
 }

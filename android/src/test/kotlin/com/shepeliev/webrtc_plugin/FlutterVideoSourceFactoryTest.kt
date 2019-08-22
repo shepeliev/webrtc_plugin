@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -19,20 +19,26 @@ import org.webrtc.VideoSource
 
 @RunWith(RobolectricTestRunner::class)
 class FlutterVideoSourceFactoryTest {
-    @get:Rule val mockitoRule = MockitoJUnit.rule()!!
+    @get:Rule
+    val mockitoRule = MockitoJUnit.rule()!!
 
     @Mock private lateinit var peerConnectionFactory: PeerConnectionFactory
     @Mock private lateinit var videoSource: VideoSource
     @Mock private lateinit var cameraCapturer: CameraCapturer
+    @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val app = ApplicationProvider.getApplicationContext<Application>()
     private lateinit var factory: FlutterVideoSourceFactory
 
     @Before
     fun setUp() {
-        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
         whenever(peerConnectionFactory.createVideoSource(any())) doReturn videoSource
-        factory = FlutterVideoSourceFactory(app, peerConnectionFactory, cameraCapturer)
+        factory = FlutterVideoSourceFactory(
+            app,
+            peerConnectionFactory,
+            cameraCapturer,
+            backendRegistry
+        )
     }
 
     @Test
@@ -48,7 +54,11 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", args)) as String
 
         verify(peerConnectionFactory).createVideoSource(false)
-        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        argumentCaptor<FlutterVideoSource>().apply {
+            verify(backendRegistry).add(capture())
+            assertThat(firstValue.id).isEqualTo(id)
+            assertThat(firstValue.videoSource).isEqualTo(videoSource)
+        }
     }
 
     @Test
@@ -58,7 +68,11 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", null)) as String
 
         verify(peerConnectionFactory).createVideoSource(false)
-        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        argumentCaptor<FlutterVideoSource>().apply {
+            verify(backendRegistry).add(capture())
+            assertThat(firstValue.id).isEqualTo(id)
+            assertThat(firstValue.videoSource).isEqualTo(videoSource)
+        }
     }
 
     @Test
@@ -69,6 +83,10 @@ class FlutterVideoSourceFactoryTest {
         val id = handler(MethodCall("createVideoSource", args)) as String
 
         verify(peerConnectionFactory).createVideoSource(true)
-        assertThat(WebrtcPlugin.flutterBackendRegistry.get<FlutterVideoSource>(id)).isNotNull()
+        argumentCaptor<FlutterVideoSource>().apply {
+            verify(backendRegistry).add(capture())
+            assertThat(firstValue.id).isEqualTo(id)
+            assertThat(firstValue.videoSource).isEqualTo(videoSource)
+        }
     }
 }

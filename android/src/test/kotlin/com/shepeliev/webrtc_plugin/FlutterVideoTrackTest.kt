@@ -1,11 +1,11 @@
 package com.shepeliev.webrtc_plugin
 
-import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.newId
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -21,23 +21,24 @@ import org.webrtc.VideoTrack
 
 @RunWith(RobolectricTestRunner::class)
 class FlutterVideoTrackTest {
-    @get:Rule val mockitoRule = MockitoJUnit.rule()!!
+    @get:Rule
+    val mockitoRule = MockitoJUnit.rule()!!
 
     @Mock private lateinit var videoTrack: VideoTrack
+    @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private lateinit var flutterVideoTrack: FlutterVideoTrack
 
     @Before
     fun setUp() {
         ShadowBuild.setManufacturer("robolectric")
-        WebrtcPlugin.flutterBackendRegistry = DefaultFlutterBackendRegistry(mock())
         whenever(videoTrack.id()) doReturn newId()
-        flutterVideoTrack = FlutterVideoTrack(videoTrack)
+        flutterVideoTrack = FlutterVideoTrack(videoTrack, backendRegistry)
     }
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.flutterBackendRegistry.all).contains(flutterVideoTrack)
+        verify(backendRegistry).add(flutterVideoTrack)
     }
 
     @Test
@@ -55,7 +56,7 @@ class FlutterVideoTrackTest {
         val renderer = mock<FlutterTextureRenderer> {
             on { id } doReturn rendererId
         }
-        WebrtcPlugin.flutterBackendRegistry.add(renderer)
+        whenever(backendRegistry.get<FlutterTextureRenderer>(rendererId)) doReturn renderer
 
         val handler = flutterVideoTrack.methodHandlers.getValue("addRenderer")
         handler(MethodCall("addRenderer", mapOf("rendererId" to rendererId)))
@@ -69,7 +70,7 @@ class FlutterVideoTrackTest {
         val renderer = mock<FlutterTextureRenderer> {
             on { id } doReturn rendererId
         }
-        WebrtcPlugin.flutterBackendRegistry.add(renderer)
+        whenever(backendRegistry.get<FlutterTextureRenderer>(rendererId)) doReturn renderer
 
         val handler = flutterVideoTrack.methodHandlers.getValue("removeRenderer")
         handler(MethodCall("removeRenderer", mapOf("rendererId" to rendererId)))
@@ -83,6 +84,6 @@ class FlutterVideoTrackTest {
         handler(MethodCall("dispose", null))
 
         verify(videoTrack).dispose()
-        assertThat(WebrtcPlugin.flutterBackendRegistry.all).isEmpty()
+        verify(backendRegistry).remove(flutterVideoTrack)
     }
 }

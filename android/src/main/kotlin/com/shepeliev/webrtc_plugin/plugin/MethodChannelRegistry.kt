@@ -5,20 +5,19 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 
 internal interface MethodChannelRegistry {
-    fun addPlugin(backend: FlutterBackend)
+    fun addFlutterBackend(backend: FlutterBackend)
     fun removePlugin(backend: FlutterBackend)
 }
 
 internal class DefaultMethodChannelRegistry(
     private val registrar: PluginRegistry.Registrar,
-    globalBackends: Collection<FlutterBackend>,
     private val methodChannelFactory: MethodChannelFactory = DefaultMethodChannelFactory()
 ) : MethodChannelRegistry {
 
     // open for testing
     val methodChannels = mutableMapOf<String, MethodChannel>()
 
-    init {
+    fun addGlobalBackends(globalBackends: Collection<FlutterBackend>) {
         if (globalBackends.isNotEmpty()) {
             methodChannels += createGlobalMethodChannel(globalBackends)
         }
@@ -42,7 +41,7 @@ internal class DefaultMethodChannelRegistry(
         return mapOf(METHOD_CHANNEL_NAME to methodChannel)
     }
 
-    override fun addPlugin(backend: FlutterBackend) {
+    override fun addFlutterBackend(backend: FlutterBackend) {
         require(!methodChannels.containsKey(backend.channelName)) {
             "Plugin with channel '${backend.channelName}' already registered."
         }

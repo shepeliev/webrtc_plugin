@@ -1,12 +1,16 @@
 package com.shepeliev.webrtc_plugin
 
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.VideoSink
 import org.webrtc.VideoTrack
 
-internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
+internal class FlutterVideoTrack(
+    private val videoTrack: VideoTrack,
+    private val backendRegistry: FlutterBackendRegistry
+) :
     FlutterBackend {
 
     override val id: String = videoTrack.id()
@@ -17,7 +21,7 @@ internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
     )
 
     init {
-        WebrtcPlugin.flutterBackendRegistry.add(this)
+        backendRegistry.add(this)
     }
 
     fun removeSink(sink: VideoSink) {
@@ -39,13 +43,13 @@ internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
     private fun getRenderer(methodCall: MethodCall): FlutterTextureRenderer {
         val rendererId: String = methodCall.argument("rendererId")
             ?: error { "'rendererId' argument required" }
-        return WebrtcPlugin.flutterBackendRegistry[rendererId]
+        return backendRegistry[rendererId]
     }
 
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
         videoTrack.dispose()
-        WebrtcPlugin.flutterBackendRegistry.remove(this)
+        backendRegistry.remove(this)
         return null
     }
 }

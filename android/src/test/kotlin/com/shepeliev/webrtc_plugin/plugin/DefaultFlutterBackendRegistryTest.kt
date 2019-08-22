@@ -29,7 +29,7 @@ class DefaultFlutterBackendRegistryTest {
         registry.add(fakePlugin1)
 
         assertThat(registry.all).containsExactly(fakePlugin1)
-        verify(methodChannelRegistry).addPlugin(fakePlugin1)
+        verify(methodChannelRegistry).addFlutterBackend(fakePlugin1)
     }
 
     @Test

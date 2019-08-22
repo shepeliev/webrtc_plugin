@@ -1,9 +1,8 @@
 package com.shepeliev.webrtc_plugin
 
 import android.content.Context
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
+import com.shepeliev.webrtc_plugin.plugin.*
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.PluginId
 import com.shepeliev.webrtc_plugin.plugin.newId
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
@@ -16,7 +15,8 @@ private val ALLOWED_CAMERA_SIDES = listOf(BACK_SIDE, FRONT_SIDE)
 internal class FlutterVideoSource(
     private val context: Context,
     val videoSource: VideoSource,
-    private val cameraCapturer: CameraCapturer
+    private val cameraCapturer: CameraCapturer,
+    private val backendRegistry: FlutterBackendRegistry
 ) : FlutterBackend {
 
     override val id: PluginId = newId()
@@ -28,7 +28,7 @@ internal class FlutterVideoSource(
     )
 
     init {
-        WebrtcPlugin.flutterBackendRegistry.add(this)
+        backendRegistry.add(this)
     }
 
     private fun startCapture(methodCall: MethodCall): Nothing? {
@@ -55,7 +55,7 @@ internal class FlutterVideoSource(
     private fun dispose(methodCall: MethodCall): Nothing? {
         cameraCapturer.stopCapture()
         videoSource.dispose()
-        WebrtcPlugin.flutterBackendRegistry.remove(this)
+        backendRegistry.remove(this)
         return null
     }
 }
