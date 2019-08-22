@@ -51,7 +51,7 @@ internal class FlutterTextureRenderer(registrar: Registrar) : EglRenderer(""), F
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
         Log.d(TAG, "Dispose $this.")
-        WebrtcPlugin.flutterBackendRegistry.allBackends
+        WebrtcPlugin.flutterBackendRegistry.all
             .filterIsInstance<FlutterVideoTrack>()
             .forEach { it.removeSink(this) }
         release()

@@ -28,7 +28,7 @@ class DefaultFlutterBackendRegistryTest {
     fun add() {
         registry.add(fakePlugin1)
 
-        assertThat(registry.allBackends).containsExactly(fakePlugin1)
+        assertThat(registry.all).containsExactly(fakePlugin1)
         verify(methodChannelRegistry).addPlugin(fakePlugin1)
     }
 
@@ -37,7 +37,7 @@ class DefaultFlutterBackendRegistryTest {
         registry.add(fakePlugin1)
         registry.add(fakePlugin2)
 
-        assertThat(registry.allBackends).containsAnyOf(fakePlugin1, fakePlugin2)
+        assertThat(registry.all).containsAnyOf(fakePlugin1, fakePlugin2)
     }
 
     @Test
@@ -47,7 +47,7 @@ class DefaultFlutterBackendRegistryTest {
 
         registry.remove(fakePlugin1)
 
-        assertThat(registry.allBackends).containsExactly(fakePlugin2)
+        assertThat(registry.all).containsExactly(fakePlugin2)
         verify(methodChannelRegistry).removePlugin(fakePlugin1)
     }
 
