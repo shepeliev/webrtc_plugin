@@ -1,7 +1,7 @@
 package com.shepeliev.webrtc_plugin
 
 import android.content.Context
-import com.shepeliev.webrtc_plugin.plugin.FlutterPlugin
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import com.shepeliev.webrtc_plugin.plugin.PluginId
 import com.shepeliev.webrtc_plugin.plugin.newId
@@ -17,7 +17,7 @@ internal class FlutterVideoSource(
     private val context: Context,
     val videoSource: VideoSource,
     private val cameraCapturer: CameraCapturer
-) : FlutterPlugin {
+) : FlutterBackend {
 
     override val id: PluginId = newId()
 

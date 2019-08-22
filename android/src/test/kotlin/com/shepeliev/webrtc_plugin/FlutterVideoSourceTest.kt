@@ -38,7 +38,7 @@ class FlutterVideoSourceTest {
         val flutterVideoSource2 = FlutterVideoSource(app, videoSource, cameraCapturer)
 
         assertThat(flutterVideoSource.id).isNotEqualTo(flutterVideoSource2.id)
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins)
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends)
             .containsAnyOf(flutterVideoSource, flutterVideoSource2)
     }
 
@@ -116,6 +116,6 @@ class FlutterVideoSourceTest {
 
         verify(cameraCapturer).stopCapture()
         verify(videoSource).dispose()
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins).doesNotContain(flutterVideoSource)
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends).doesNotContain(flutterVideoSource)
     }
 }

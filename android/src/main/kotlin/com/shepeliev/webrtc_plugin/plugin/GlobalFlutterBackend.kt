@@ -2,7 +2,7 @@ package com.shepeliev.webrtc_plugin.plugin
 
 import com.shepeliev.webrtc_plugin.METHOD_CHANNEL_NAME
 
-internal interface GlobalFlutterPlugin : FlutterPlugin {
+internal interface GlobalFlutterBackend : FlutterBackend {
     override val id: PluginId
         get() = javaClass.simpleName
 

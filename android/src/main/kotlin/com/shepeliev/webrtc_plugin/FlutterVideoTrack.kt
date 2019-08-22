@@ -1,13 +1,13 @@
 package com.shepeliev.webrtc_plugin
 
-import com.shepeliev.webrtc_plugin.plugin.FlutterPlugin
+import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.VideoSink
 import org.webrtc.VideoTrack
 
 internal class FlutterVideoTrack(private val videoTrack: VideoTrack) :
-    FlutterPlugin {
+    FlutterBackend {
 
     override val id: String = videoTrack.id()
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(

@@ -1,30 +1,30 @@
 package com.shepeliev.webrtc_plugin.plugin
 
 internal interface PluginRegistry {
-    val allPlugins: Collection<FlutterPlugin>
+    val allBackends: Collection<FlutterBackend>
 
-    fun add(plugin: FlutterPlugin)
+    fun add(backend: FlutterBackend)
 
-    fun remove(plugin: FlutterPlugin)
+    fun remove(backend: FlutterBackend)
 
     operator fun <T> get(id: String): T
 }
 
 internal class DefaultPluginRegistry(private val methodChannelRegistry: MethodChannelRegistry) : PluginRegistry {
-    private val plugins = mutableMapOf<String, FlutterPlugin>()
+    private val plugins = mutableMapOf<String, FlutterBackend>()
 
-    override val allPlugins: Collection<FlutterPlugin>
+    override val allBackends: Collection<FlutterBackend>
         get() = plugins.values
 
-    override fun add(plugin: FlutterPlugin) {
-        plugins += (plugin.id to plugin)
-        methodChannelRegistry.addPlugin(plugin)
+    override fun add(backend: FlutterBackend) {
+        plugins += (backend.id to backend)
+        methodChannelRegistry.addPlugin(backend)
     }
 
-    override fun remove(plugin: FlutterPlugin) {
-        check(!plugin.isGlobal) { "Global plugin can't be removed." }
-        methodChannelRegistry.removePlugin(plugin)
-        plugins.remove(plugin.id) ?: return
+    override fun remove(backend: FlutterBackend) {
+        check(!backend.isGlobal) { "Global backend can't be removed." }
+        methodChannelRegistry.removePlugin(backend)
+        plugins.remove(backend.id) ?: return
     }
 
     @Suppress("UNCHECKED_CAST")

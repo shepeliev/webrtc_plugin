@@ -37,7 +37,7 @@ class FlutterVideoTrackTest {
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins).contains(flutterVideoTrack)
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends).contains(flutterVideoTrack)
     }
 
     @Test
@@ -83,6 +83,6 @@ class FlutterVideoTrackTest {
         handler(MethodCall("dispose", null))
 
         verify(videoTrack).dispose()
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins).isEmpty()
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends).isEmpty()
     }
 }

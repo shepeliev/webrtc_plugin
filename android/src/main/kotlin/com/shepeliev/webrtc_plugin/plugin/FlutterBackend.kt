@@ -4,7 +4,7 @@ import com.shepeliev.webrtc_plugin.METHOD_CHANNEL_NAME
 
 typealias PluginId = String
 
-internal interface FlutterPlugin {
+internal interface FlutterBackend {
     val id: PluginId
 
     val isGlobal: Boolean

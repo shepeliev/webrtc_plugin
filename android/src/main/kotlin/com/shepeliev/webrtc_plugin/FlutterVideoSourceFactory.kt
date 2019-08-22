@@ -1,7 +1,7 @@
 package com.shepeliev.webrtc_plugin
 
 import android.content.Context
-import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterPlugin
+import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import com.shepeliev.webrtc_plugin.plugin.PluginId
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
@@ -12,7 +12,7 @@ internal class FlutterVideoSourceFactory(
     private val context: Context,
     private val peerConnectionFactory: PeerConnectionFactory,
     private val cameraCapturer: CameraCapturer
-) : GlobalFlutterPlugin {
+) : GlobalFlutterBackend {
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "createVideoSource" to ::createFlutterVideoSource

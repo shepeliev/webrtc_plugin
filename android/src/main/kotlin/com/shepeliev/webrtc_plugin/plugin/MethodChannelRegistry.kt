@@ -5,13 +5,13 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 
 internal interface MethodChannelRegistry {
-    fun addPlugin(plugin: FlutterPlugin)
-    fun removePlugin(plugin: FlutterPlugin)
+    fun addPlugin(backend: FlutterBackend)
+    fun removePlugin(backend: FlutterBackend)
 }
 
 internal class DefaultMethodChannelRegistry(
     private val registrar: PluginRegistry.Registrar,
-    globalPlugins: Collection<FlutterPlugin>,
+    globalBackends: Collection<FlutterBackend>,
     private val methodChannelFactory: MethodChannelFactory = DefaultMethodChannelFactory()
 ) : MethodChannelRegistry {
 
@@ -19,14 +19,14 @@ internal class DefaultMethodChannelRegistry(
     val methodChannels = mutableMapOf<String, MethodChannel>()
 
     init {
-        if (globalPlugins.isNotEmpty()) {
-            methodChannels += createGlobalMethodChannel(globalPlugins)
+        if (globalBackends.isNotEmpty()) {
+            methodChannels += createGlobalMethodChannel(globalBackends)
         }
     }
 
-    private fun createGlobalMethodChannel(globalPlugins: Collection<FlutterPlugin>): Map<String, MethodChannel> {
+    private fun createGlobalMethodChannel(globalBackends: Collection<FlutterBackend>): Map<String, MethodChannel> {
         val handlers: Map<String, MethodHandler<*>> =
-            globalPlugins.fold(mapOf()) { acc, plugin ->
+            globalBackends.fold(mapOf()) { acc, plugin ->
                 require(plugin.methodHandlers.keys.none { acc.containsKey(it) }) {
                     "$plugin has duplicated method handlers.\n" +
                             "Plugin methods: ${plugin.methodHandlers.keys}\n" +
@@ -42,23 +42,23 @@ internal class DefaultMethodChannelRegistry(
         return mapOf(METHOD_CHANNEL_NAME to methodChannel)
     }
 
-    override fun addPlugin(plugin: FlutterPlugin) {
-        require(!methodChannels.containsKey(plugin.channelName)) {
-            "Plugin with channel '${plugin.channelName}' already registered."
+    override fun addPlugin(backend: FlutterBackend) {
+        require(!methodChannels.containsKey(backend.channelName)) {
+            "Plugin with channel '${backend.channelName}' already registered."
         }
         val methodChannel = methodChannelFactory.createMethodChannel(
             registrar,
-            plugin.channelName,
-            plugin.methodHandlers
+            backend.channelName,
+            backend.methodHandlers
         )
-        val newEntry = plugin.channelName to methodChannel
+        val newEntry = backend.channelName to methodChannel
         methodChannels += newEntry
     }
 
-    override fun removePlugin(plugin: FlutterPlugin) {
-        val channel = methodChannels[plugin.channelName]
+    override fun removePlugin(backend: FlutterBackend) {
+        val channel = methodChannels[backend.channelName]
         channel?.setMethodCallHandler(null)
-        methodChannels -= plugin.channelName
+        methodChannels -= backend.channelName
     }
 }
 

@@ -49,7 +49,7 @@ class FlutterTextureRendererTest {
 
     @Test
     fun constructor() {
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins).contains(renderer)
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends).contains(renderer)
     }
 
     @Test
@@ -90,6 +90,6 @@ class FlutterTextureRendererTest {
         verify(texture).release()
         verify(textureEntry).release()
         verify(videoTack).removeSink(renderer)
-        assertThat(WebrtcPlugin.pluginRegistry.allPlugins).doesNotContain(renderer)
+        assertThat(WebrtcPlugin.pluginRegistry.allBackends).doesNotContain(renderer)
     }
 }

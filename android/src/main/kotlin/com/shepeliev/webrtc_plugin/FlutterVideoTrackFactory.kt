@@ -1,6 +1,6 @@
 package com.shepeliev.webrtc_plugin
 
-import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterPlugin
+import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import com.shepeliev.webrtc_plugin.plugin.PluginId
 import com.shepeliev.webrtc_plugin.plugin.newId
@@ -8,7 +8,7 @@ import io.flutter.plugin.common.MethodCall
 import org.webrtc.PeerConnectionFactory
 
 internal class FlutterVideoTrackFactory(private val peerConnectionFactory: PeerConnectionFactory) :
-    GlobalFlutterPlugin {
+    GlobalFlutterBackend {
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "createVideoTrack" to ::createVideoTrack

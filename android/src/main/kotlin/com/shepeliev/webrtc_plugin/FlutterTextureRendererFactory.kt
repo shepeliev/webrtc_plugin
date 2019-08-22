@@ -1,12 +1,12 @@
 package com.shepeliev.webrtc_plugin
 
-import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterPlugin
+import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 internal class FlutterTextureRendererFactory(private val registrar: Registrar) :
-    GlobalFlutterPlugin {
+    GlobalFlutterBackend {
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "createTextureRenderer" to ::createTextureRenderer

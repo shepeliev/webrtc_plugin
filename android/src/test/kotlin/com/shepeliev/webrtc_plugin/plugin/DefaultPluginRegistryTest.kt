@@ -13,14 +13,14 @@ class DefaultPluginRegistryTest {
 
     @Mock private lateinit var methodChannelRegistry: MethodChannelRegistry
 
-    private lateinit var fakePlugin1: FakePlugin
-    private lateinit var fakePlugin2: FakePlugin
+    private lateinit var fakePlugin1: FakeBackend
+    private lateinit var fakePlugin2: FakeBackend
     private lateinit var registry: DefaultPluginRegistry
 
     @Before
     fun setUp() {
-        fakePlugin1 = FakePlugin()
-        fakePlugin2 = FakePlugin()
+        fakePlugin1 = FakeBackend()
+        fakePlugin2 = FakeBackend()
         registry = DefaultPluginRegistry(methodChannelRegistry)
     }
 
@@ -28,7 +28,7 @@ class DefaultPluginRegistryTest {
     fun add() {
         registry.add(fakePlugin1)
 
-        assertThat(registry.allPlugins).containsExactly(fakePlugin1)
+        assertThat(registry.allBackends).containsExactly(fakePlugin1)
         verify(methodChannelRegistry).addPlugin(fakePlugin1)
     }
 
@@ -37,7 +37,7 @@ class DefaultPluginRegistryTest {
         registry.add(fakePlugin1)
         registry.add(fakePlugin2)
 
-        assertThat(registry.allPlugins).containsAnyOf(fakePlugin1, fakePlugin2)
+        assertThat(registry.allBackends).containsAnyOf(fakePlugin1, fakePlugin2)
     }
 
     @Test
@@ -47,7 +47,7 @@ class DefaultPluginRegistryTest {
 
         registry.remove(fakePlugin1)
 
-        assertThat(registry.allPlugins).containsExactly(fakePlugin2)
+        assertThat(registry.allBackends).containsExactly(fakePlugin2)
         verify(methodChannelRegistry).removePlugin(fakePlugin1)
     }
 
@@ -56,14 +56,14 @@ class DefaultPluginRegistryTest {
         registry.add(fakePlugin1)
         registry.add(fakePlugin2)
 
-        val plugin: FakePlugin = registry[fakePlugin1.id]
+        val plugin: FakeBackend = registry[fakePlugin1.id]
 
         assertThat(plugin).isEqualTo(fakePlugin1)
     }
 }
 
-private class FakePlugin(
+private class FakeBackend(
     override val id: PluginId = newId(),
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf()
-) : FlutterPlugin
+) : FlutterBackend
 

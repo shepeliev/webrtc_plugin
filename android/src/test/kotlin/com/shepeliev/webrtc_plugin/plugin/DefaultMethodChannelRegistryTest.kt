@@ -29,8 +29,8 @@ class DefaultMethodChannelRegistryTest {
 
     @Test
     fun constructor() {
-        val fooPlugin = FooPlugin()
-        val bazPlugin = BarPlugin()
+        val fooPlugin = FooBackend()
+        val bazPlugin = BarBackend()
         val registry = DefaultMethodChannelRegistry(
             registrar,
             listOf(fooPlugin, bazPlugin),
@@ -53,10 +53,10 @@ class DefaultMethodChannelRegistryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun constructor_duplicate_global_method() {
-        val fooPlugin = FooPlugin()
-        val bazPlugin = BarPlugin()
-        val fooBarPlugin = FooBarPlugin()
-        val registry = DefaultMethodChannelRegistry(
+        val fooPlugin = FooBackend()
+        val bazPlugin = BarBackend()
+        val fooBarPlugin = FooBarBackend()
+        DefaultMethodChannelRegistry(
             registrar,
             listOf(fooPlugin, bazPlugin, fooBarPlugin),
             methodChannelFactory
@@ -71,7 +71,7 @@ class DefaultMethodChannelRegistryTest {
             methodChannelFactory
         )
 
-        val bazPlugin = BazPlugin()
+        val bazPlugin = BazBackend()
         registry.addPlugin(bazPlugin)
 
         assertThat(registry.methodChannels).hasSize(1)
@@ -95,7 +95,7 @@ class DefaultMethodChannelRegistryTest {
             methodChannelFactory
         )
 
-        val bazPlugin = BazPlugin()
+        val bazPlugin = BazBackend()
         registry.addPlugin(bazPlugin)
         registry.addPlugin(bazPlugin)
     }
@@ -107,7 +107,7 @@ class DefaultMethodChannelRegistryTest {
             emptyList(),
             methodChannelFactory
         )
-        val bazPlugin = BazPlugin()
+        val bazPlugin = BazBackend()
         registry.addPlugin(bazPlugin)
 
         registry.removePlugin(bazPlugin)
@@ -117,7 +117,7 @@ class DefaultMethodChannelRegistryTest {
     }
 }
 
-private class FooPlugin : GlobalFlutterPlugin {
+private class FooBackend : GlobalFlutterBackend {
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "foo" to ::foo
     )
@@ -126,7 +126,7 @@ private class FooPlugin : GlobalFlutterPlugin {
     private fun foo(methodCall: MethodCall): Int = 42
 }
 
-private class BarPlugin : GlobalFlutterPlugin {
+private class BarBackend : GlobalFlutterBackend {
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "bar" to ::bar
     )
@@ -135,7 +135,7 @@ private class BarPlugin : GlobalFlutterPlugin {
     private fun bar(methodCall: MethodCall): Int = 42
 }
 
-private class FooBarPlugin : GlobalFlutterPlugin {
+private class FooBarBackend : GlobalFlutterBackend {
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "bar" to ::bar
     )
@@ -144,8 +144,8 @@ private class FooBarPlugin : GlobalFlutterPlugin {
     private fun bar(methodCall: MethodCall): Int = 42
 }
 
-private class BazPlugin(override val id: PluginId = newId()) :
-    FlutterPlugin {
+private class BazBackend(override val id: PluginId = newId()) :
+    FlutterBackend {
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "baz" to ::baz
     )
