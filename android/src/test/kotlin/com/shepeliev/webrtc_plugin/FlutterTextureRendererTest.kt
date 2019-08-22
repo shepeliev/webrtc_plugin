@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -42,7 +42,7 @@ class FlutterTextureRendererTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
-        WebrtcPlugin.pluginRegistry = PluginRegistry(mock())
+        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
 
         renderer = FlutterTextureRenderer(registrar)
     }

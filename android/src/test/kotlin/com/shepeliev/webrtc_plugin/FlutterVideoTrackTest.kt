@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
 import com.shepeliev.webrtc_plugin.plugin.newId
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -30,7 +30,7 @@ class FlutterVideoTrackTest {
     @Before
     fun setUp() {
         ShadowBuild.setManufacturer("robolectric")
-        WebrtcPlugin.pluginRegistry = PluginRegistry(mock())
+        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
         whenever(videoTrack.id()) doReturn newId()
         flutterVideoTrack = FlutterVideoTrack(videoTrack)
     }

@@ -1,6 +1,7 @@
 package com.shepeliev.webrtc_plugin
 
 import com.shepeliev.webrtc_plugin.plugin.DefaultMethodChannelRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
 import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
 import com.shepeliev.webrtc_plugin.webrtc.DefaultCameraCapturer
 import com.shepeliev.webrtc_plugin.webrtc.PCF
@@ -26,6 +27,6 @@ object WebrtcPlugin {
             registrar,
             globalPlugins
         )
-        pluginRegistry = PluginRegistry(methodChannelRegistry)
+        pluginRegistry = DefaultPluginRegistry(methodChannelRegistry)
     }
 }

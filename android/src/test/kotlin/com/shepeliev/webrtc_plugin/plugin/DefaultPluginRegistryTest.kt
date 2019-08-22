@@ -9,19 +9,19 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class PluginRegistryTest {
+class DefaultPluginRegistryTest {
 
     @Mock private lateinit var methodChannelRegistry: MethodChannelRegistry
 
     private lateinit var fakePlugin1: FakePlugin
     private lateinit var fakePlugin2: FakePlugin
-    private lateinit var registry: PluginRegistry
+    private lateinit var registry: DefaultPluginRegistry
 
     @Before
     fun setUp() {
         fakePlugin1 = FakePlugin()
         fakePlugin2 = FakePlugin()
-        registry = PluginRegistry(methodChannelRegistry)
+        registry = DefaultPluginRegistry(methodChannelRegistry)
     }
 
     @Test

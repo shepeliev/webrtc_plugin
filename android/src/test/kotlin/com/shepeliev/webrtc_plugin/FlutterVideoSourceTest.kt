@@ -5,7 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.shepeliev.webrtc_plugin.plugin.PluginRegistry
+import com.shepeliev.webrtc_plugin.plugin.DefaultPluginRegistry
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
 import org.junit.Before
@@ -29,7 +29,7 @@ class FlutterVideoSourceTest {
 
     @Before
     fun setUp() {
-        WebrtcPlugin.pluginRegistry = PluginRegistry(mock())
+        WebrtcPlugin.pluginRegistry = DefaultPluginRegistry(mock())
         flutterVideoSource = FlutterVideoSource(app, videoSource, cameraCapturer)
     }
 
