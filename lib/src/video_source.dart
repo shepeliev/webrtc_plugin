@@ -38,8 +38,7 @@ class VideoSource {
     return isFront ? CameraSide.front : CameraSide.back;
   }
 
-  Future<void> dispose() async =>
-      await tryInvokeMethod(_channel, 'dispose', {'id': id});
+  Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
 }
 
 enum CameraSide { front, back }

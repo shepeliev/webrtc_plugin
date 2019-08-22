@@ -91,6 +91,6 @@ void main() {
     await VideoSource(id).dispose();
 
     expect(calledMethod, 'dispose');
-    expect(arguments, {'id': id});
+    expect(arguments, null);
   });
 }
