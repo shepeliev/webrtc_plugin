@@ -13,7 +13,7 @@ internal class FlutterVideoTrackFactory(
         "createVideoTrack" to ::createVideoTrack
     )
 
-    private fun createVideoTrack(methodCall: MethodCall): PluginId {
+    private fun createVideoTrack(methodCall: MethodCall): BackendId {
         val videoSource = getFlutterVideoSource(methodCall).videoSource
         val videoTrack = peerConnectionFactory.createVideoTrack(newId(), videoSource)
         return FlutterVideoTrack(videoTrack, backendRegistry).id

@@ -131,7 +131,7 @@ private class FooBarBackend : GlobalFlutterBackend {
     private fun bar(methodCall: MethodCall): Int = 42
 }
 
-private class BazBackend(override val id: PluginId = newId()) :
+private class BazBackend(override val id: BackendId = newId()) :
     FlutterBackend {
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "baz" to ::baz

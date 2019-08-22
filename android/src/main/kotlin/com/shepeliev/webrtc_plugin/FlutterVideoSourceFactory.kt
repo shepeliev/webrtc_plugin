@@ -4,7 +4,7 @@ import android.content.Context
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.PluginId
+import com.shepeliev.webrtc_plugin.plugin.BackendId
 import com.shepeliev.webrtc_plugin.webrtc.CameraCapturer
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.PeerConnectionFactory
@@ -20,7 +20,7 @@ internal class FlutterVideoSourceFactory(
         "createVideoSource" to ::createFlutterVideoSource
     )
 
-    private fun createFlutterVideoSource(methodCall: MethodCall): PluginId {
+    private fun createFlutterVideoSource(methodCall: MethodCall): BackendId {
         val isScreencast = methodCall.argument<Boolean>("isScreencast") ?: false
         val videoSource = peerConnectionFactory.createVideoSource(isScreencast)
         return FlutterVideoSource(

@@ -3,7 +3,7 @@ package com.shepeliev.webrtc_plugin
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.PluginId
+import com.shepeliev.webrtc_plugin.plugin.BackendId
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnectionFactory
@@ -18,7 +18,7 @@ internal class FlutterAudioSourceFactory(
     )
 
     @Suppress("UNUSED_PARAMETER")
-    private fun createFlutterVideoSource(methodCall: MethodCall): PluginId {
+    private fun createFlutterVideoSource(methodCall: MethodCall): BackendId {
         val videoSource = peerConnectionFactory.createAudioSource(MediaConstraints())
         return FlutterAudioSource(videoSource, backendRegistry).id
     }

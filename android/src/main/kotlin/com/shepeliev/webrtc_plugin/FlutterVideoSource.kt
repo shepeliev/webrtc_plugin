@@ -19,7 +19,7 @@ internal class FlutterVideoSource(
     private val backendRegistry: FlutterBackendRegistry
 ) : FlutterBackend {
 
-    override val id: PluginId = newId()
+    override val id: BackendId = newId()
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "startCapture" to ::startCapture,

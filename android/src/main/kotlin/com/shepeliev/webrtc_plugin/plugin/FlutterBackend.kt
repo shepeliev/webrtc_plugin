@@ -2,10 +2,10 @@ package com.shepeliev.webrtc_plugin.plugin
 
 import com.shepeliev.webrtc_plugin.METHOD_CHANNEL_NAME
 
-typealias PluginId = String
+typealias BackendId = String
 
 internal interface FlutterBackend {
-    val id: PluginId
+    val id: BackendId
 
     val isGlobal: Boolean
         get() = false

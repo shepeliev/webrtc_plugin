@@ -9,7 +9,7 @@ internal class FlutterAudioSource(
     private val backendRegistry: FlutterBackendRegistry
 ) : FlutterBackend {
 
-    override val id: PluginId = newId()
+    override val id: BackendId = newId()
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "dispose" to ::dispose
