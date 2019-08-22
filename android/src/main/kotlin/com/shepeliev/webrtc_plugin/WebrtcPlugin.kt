@@ -25,6 +25,7 @@ object WebrtcPlugin {
                 DefaultCameraCapturer,
                 backendRegistry
             ),
+            FlutterAudioSourceFactory(PCF.instance, backendRegistry),
             FlutterVideoTrackFactory(PCF.instance, backendRegistry),
             FlutterTextureRendererFactory(registrar, backendRegistry)
         )
