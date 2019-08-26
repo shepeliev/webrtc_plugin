@@ -22,7 +22,7 @@ import org.webrtc.VideoFrame
 import kotlin.random.Random
 
 @RunWith(RobolectricTestRunner::class)
-class FlutterTextureRendererTest {
+class TextureRendererBackendTest {
     @get:Rule
     val mockitoRule = MockitoJUnit.rule()!!
 

@@ -19,7 +19,7 @@ object WebrtcPlugin {
         val backendRegistry = DefaultFlutterBackendRegistry(methodChannelRegistry)
 
         val globalPlugins = listOf(
-            FlutterTextureRendererFactory(registrar, backendRegistry),
+            TextureRendererBackendFactory(registrar, backendRegistry),
             MediaBackend(
                 PCF.instance,
                 DefaultVideoCapturerFactory(registrar.context()),

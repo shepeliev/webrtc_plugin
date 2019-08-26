@@ -6,7 +6,7 @@ import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-internal class FlutterTextureRendererFactory(
+internal class TextureRendererBackendFactory(
     private val registrar: Registrar,
     private val backendRegistry: FlutterBackendRegistry
 ) : GlobalFlutterBackend {

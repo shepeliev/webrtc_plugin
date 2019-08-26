@@ -3,7 +3,6 @@ package com.shepeliev.webrtc_plugin
 import android.graphics.SurfaceTexture
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.*
-import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
@@ -19,7 +18,7 @@ import org.robolectric.shadows.ShadowBuild
 import kotlin.random.Random
 
 @RunWith(RobolectricTestRunner::class)
-class FlutterTextureRendererFactoryTest {
+class TextureRendererBackendFactoryTest {
     @get:Rule val mockitoRule = MockitoJUnit.rule()!!
 
     @Mock private lateinit var registrar: Registrar
@@ -29,7 +28,7 @@ class FlutterTextureRendererFactoryTest {
     @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val textureId = Random(System.currentTimeMillis()).nextLong()
-    private lateinit var factory: FlutterTextureRendererFactory
+    private lateinit var backendFactory: TextureRendererBackendFactory
 
     @Before
     fun setUp() {
@@ -39,17 +38,17 @@ class FlutterTextureRendererFactoryTest {
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
 
-        factory = FlutterTextureRendererFactory(registrar, backendRegistry)
+        backendFactory = TextureRendererBackendFactory(registrar, backendRegistry)
     }
 
     @Test
     fun isGlobal() {
-        assertThat(factory.isGlobal).isTrue()
+        assertThat(backendFactory.isGlobal).isTrue()
     }
 
     @Test
     fun createTextureRenderer() {
-        val handler = factory.methodHandlers.getValue("createTextureRenderer")
+        val handler = backendFactory.methodHandlers.getValue("createTextureRenderer")
 
         @Suppress("UNCHECKED_CAST")
         val result = handler(MethodCall("createTextureRenderer", null)) as Map<String, Any?>
