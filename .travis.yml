@@ -4,6 +4,13 @@ android:
   components:
     - build-tools-29.0.2
     - android-28
-before_script:
-  - cd ./example/android
-script: ./gradlew webrtc_plugin:test
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y unzip which xz-utils libglu1-mesa
+  - wget https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_v1.7.8+hotfix.4-stable.tar.xz
+  - tar -xf flutter_linux_v1.7.8+hotfix.4-stable.tar.xz
+  - export PATH="$PATH:$PWD/flutter/bin"
+  - flutter precache
+script:
+  - flutter test
+  - cd ./example/android && ./gradlew webrtc_plugin:test
