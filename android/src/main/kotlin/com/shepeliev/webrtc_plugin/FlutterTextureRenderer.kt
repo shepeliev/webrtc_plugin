@@ -33,6 +33,8 @@ internal class FlutterTextureRenderer(
     val textureId: Long
         get() = textureEntry.id()
 
+    private var disposed = false
+
     init {
         val textures = registrar.textures()
         textureEntry = textures.createSurfaceTexture()
@@ -54,14 +56,24 @@ internal class FlutterTextureRenderer(
 
     @Suppress("UNUSED_PARAMETER")
     private fun dispose(methodCall: MethodCall): Nothing? {
-        Log.d(TAG, "Dispose $this.")
-        backendRegistry.all
-            .filterIsInstance<FlutterVideoTrack>()
-            .forEach { it.removeSink(this) }
+        disposeInternal()
+        return null
+    }
+
+    private fun disposeInternal() {
+        if (disposed) return
+        Log.d(TAG, "Disposing $this.")
         release()
         texture.release()
         textureEntry.release()
         backendRegistry.remove(this)
-        return null
+        disposed = true
+    }
+
+    protected fun finalize() {
+        if (!disposed) {
+            Log.w(TAG, "$this has not been disposed properly.")
+            disposeInternal()
+        }
     }
 }

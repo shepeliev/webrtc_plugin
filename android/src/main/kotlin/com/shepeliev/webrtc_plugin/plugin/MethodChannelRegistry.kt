@@ -1,5 +1,6 @@
 package com.shepeliev.webrtc_plugin.plugin
 
+import androidx.annotation.VisibleForTesting
 import com.shepeliev.webrtc_plugin.*
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
@@ -14,10 +15,10 @@ internal class DefaultMethodChannelRegistry(
     private val methodChannelFactory: MethodChannelFactory = DefaultMethodChannelFactory()
 ) : MethodChannelRegistry {
 
-    // open for testing
+    @VisibleForTesting
     val methodChannels = mutableMapOf<String, MethodChannel>()
 
-    fun addGlobalBackends(globalBackends: Collection<FlutterBackend>) {
+    fun addGlobalBackends(globalBackends: Collection<GlobalFlutterBackend>) {
         if (globalBackends.isNotEmpty()) {
             methodChannels += createGlobalMethodChannel(globalBackends)
         }

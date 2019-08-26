@@ -2,7 +2,7 @@ package com.shepeliev.webrtc_plugin
 
 import com.shepeliev.webrtc_plugin.plugin.DefaultFlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.DefaultMethodChannelRegistry
-import com.shepeliev.webrtc_plugin.webrtc.DefaultCameraCapturer
+import com.shepeliev.webrtc_plugin.webrtc.DefaultVideoCapturerFactory
 import com.shepeliev.webrtc_plugin.webrtc.PCF
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
@@ -19,15 +19,12 @@ object WebrtcPlugin {
         val backendRegistry = DefaultFlutterBackendRegistry(methodChannelRegistry)
 
         val globalPlugins = listOf(
-            FlutterVideoSourceFactory(
-                registrar.context(),
+            FlutterTextureRendererFactory(registrar, backendRegistry),
+            MediaBackend(
                 PCF.instance,
-                DefaultCameraCapturer,
+                DefaultVideoCapturerFactory(registrar.context()),
                 backendRegistry
-            ),
-            FlutterAudioSourceFactory(PCF.instance, backendRegistry),
-            FlutterVideoTrackFactory(PCF.instance, backendRegistry),
-            FlutterTextureRendererFactory(registrar, backendRegistry)
+            )
         )
         methodChannelRegistry.addGlobalBackends(globalPlugins)
     }

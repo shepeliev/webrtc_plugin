@@ -26,6 +26,6 @@ void main() {
   test('create from Map', () {
     final map = {'id': 'track1'};
 
-    expect(VideoTrack.fromMap(map).toString(), 'VideoTrack{id: track1}');
+    expect(AudioTrack.fromMap(map).toString(), 'AudioTrack{id: track1}');
   });
 }

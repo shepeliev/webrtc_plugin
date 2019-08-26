@@ -58,6 +58,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.webrtc:google-webrtc:1.0.28513'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     testImplementation files(getFlutterDependencyPath())
     testImplementation 'junit:junit:4.12'

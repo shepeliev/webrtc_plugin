@@ -1,6 +1,9 @@
 package com.shepeliev.webrtc_plugin.plugin
 
 import java.util.*
-import kotlin.String
 
-internal fun newId(): String = UUID.randomUUID().toString()
+@Deprecated("Use newStringId()", replaceWith = ReplaceWith("newStringId()"))
+internal fun newId(): String = newStringId()
+
+internal fun newStringId(): String = randomString()
+internal fun randomString(): String = UUID.randomUUID().toString()

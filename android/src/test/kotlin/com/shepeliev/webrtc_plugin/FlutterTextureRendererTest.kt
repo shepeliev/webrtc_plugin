@@ -76,16 +76,12 @@ class FlutterTextureRendererTest {
 
     @Test
     fun dispose() {
-        val flutterVideoTrack = mock<FlutterVideoTrack>()
-        whenever(backendRegistry.all) doReturn listOf(flutterVideoTrack)
-
         val handler = renderer.methodHandlers.getValue("dispose")
 
         handler(MethodCall("dispose", null))
 
         verify(texture).release()
         verify(textureEntry).release()
-        verify(flutterVideoTrack).removeSink(renderer)
         verify(backendRegistry).remove(renderer)
     }
 }
