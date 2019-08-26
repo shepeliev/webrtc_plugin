@@ -1,0 +1,9 @@
+language: android
+dist: trusty
+android:
+  components:
+    - build-tools-29.0.2
+    - android-28
+before_script:
+  - cd ./example/android
+script: ./gradlew webrtc_plugin:test
