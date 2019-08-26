@@ -11,6 +11,8 @@ before_install:
   - tar -xf flutter_linux_v1.7.8+hotfix.4-stable.tar.xz
   - export PATH="$PATH:$PWD/flutter/bin"
   - flutter precache
+before_script:
+  - flutter pub get
 script:
-  - flutter pub get && flutter test
+  - flutter test
   - cd ./example/android && ./gradlew webrtc_plugin:test
