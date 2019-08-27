@@ -48,14 +48,17 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: WillPopScope(
+    return MaterialApp(home: _buildHome());
+  }
+
+  Widget _buildHome() {
+    return WillPopScope(
+      onWillPop: _disposeUserMedia,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Plugin example app')),
+        appBar: AppBar(title: const Text('WebRTC example')),
         body: Center(child: _buildBody()),
       ),
-      onWillPop: _disposeUserMedia,
-    ));
+    );
   }
 
   Widget _buildBody() {
