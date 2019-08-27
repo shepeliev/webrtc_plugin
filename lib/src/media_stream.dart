@@ -38,6 +38,14 @@ class MediaStream {
 
   Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'videoTracks': videoTracks.map((track) => track.toMap()).toList(),
+      'audioTracks': videoTracks.map((track) => track.toMap()).toList()
+    };
+  }
+
   @override
   String toString() {
     return 'MediaStream{id: $id, videoTracks: $videoTracks, audioTracks: $audioTracks}';
@@ -53,6 +61,8 @@ class AudioTrack {
     assert(map != null);
     return AudioTrack(map['id']);
   }
+
+  Map<String, dynamic> toMap() => {'id': id};
 
   @override
   String toString() {
@@ -70,6 +80,8 @@ class VideoTrack {
     assert(map != null);
     return VideoTrack(map['id']);
   }
+
+  Map<String, dynamic> toMap() => {'id': id};
 
   @override
   String toString() {
