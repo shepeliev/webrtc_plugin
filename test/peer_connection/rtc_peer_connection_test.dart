@@ -269,7 +269,7 @@ void main() {
 
     await peerConnection.dispose();
 
-    expect(methodCalls.toString(), '[MethodCall(dispose)]');
+    expect(methodCalls.toString(), '[MethodCall(dispose, null)]');
   });
 }
 
