@@ -5,14 +5,19 @@ import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/src/peer_connection/peer_connection.dart';
 import 'package:webrtc_plugin/src/utils/random.dart';
 
+final id = randomString();
+
 void main() {
-  final id = randomString();
   final channel = MethodChannel('$channelName::$id');
   final List<MethodCall> globalMethodCalls = [];
   final List<MethodCall> methodCalls = [];
 
   Function mockGlobalMethodHandler = (methodCall) async {};
   Function mockMethodHandler = (methodCall) async {};
+
+  // stub EventChannel method handler
+  MethodChannel('$channelName::$id/events')
+      .setMockMethodCallHandler((methodCall) async {});
 
   setUp(() {
     globalChannel.setMockMethodCallHandler((MethodCall methodCall) async {
@@ -162,17 +167,17 @@ void main() {
   });
 
   test('iceConnectionState', () async {
-    final peerConnection = RTCPeerConnection(id, true);
+    final peerConnection = RTCPeerConnection(id);
     final states = <IceConnectionState>[];
     final subscription =
         peerConnection.iceConnectionState.listen((state) => states.add(state));
 
-    await channel.invokeMethod('onIceConnectionStateChange', 'NEW');
-    await channel.invokeMethod('onIceConnectionStateChange', 'CHECKING');
-    await channel.invokeMethod('onIceConnectionStateChange', 'CONNECTED');
-    await channel.invokeMethod('onIceConnectionStateChange', 'FAILED');
-    await channel.invokeMethod('onIceConnectionStateChange', 'DISCONNECTED');
-    await channel.invokeMethod('onIceConnectionStateChange', 'CLOSED');
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'NEW'});
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CHECKING'});
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CONNECTED'});
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'FAILED'});
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'DISCONNECTED'});
+    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CLOSED'});
 
     expect(states, [
       IceConnectionState.newConnection,
@@ -186,28 +191,38 @@ void main() {
   });
 
   test('iceCandidates', () async {
-    final peerConnection = RTCPeerConnection(id, true);
+    final peerConnection = RTCPeerConnection(id);
     final candidates = <IceCandidate>[];
     final subscription = peerConnection.iceCandidates
         .listen((candidate) => candidates.add(candidate));
 
     final iceCandidate = IceCandidate(
-        randomString(), randomInt(max: 1000), randomString(), randomString());
-    await channel.invokeMethod('onIceCandidate', iceCandidate.toMap());
+      randomString(),
+      randomInt(max: 1000),
+      randomString(),
+      randomString(),
+    );
+    await _postEvent({
+      'type': 'iceCandidate',
+      'iceCandidate': iceCandidate.toMap(),
+    });
 
     expect(candidates, [iceCandidate]);
     subscription.cancel();
   });
 
   test('removedIceCandidates', () async {
-    final peerConnection = RTCPeerConnection(id, true);
+    final peerConnection = RTCPeerConnection(id);
     final removedCandidates = <List<IceCandidate>>[];
     final subscription = peerConnection.removedIceCandidates
         .listen((candidates) => removedCandidates.add(candidates));
 
     final iceCandidate = IceCandidate(
         randomString(), randomInt(max: 1000), randomString(), randomString());
-    await channel.invokeMethod('onRemoveIceCandidates', [iceCandidate.toMap()]);
+    await _postEvent({
+      'type': 'removeIceCandidates',
+      'iceCandidates': [iceCandidate.toMap()],
+    });
 
     expect(removedCandidates, [
       [iceCandidate]
@@ -216,30 +231,53 @@ void main() {
   });
 
   test('addMediaStream', () async {
-    final peerConnection = RTCPeerConnection(id, true);
+    final peerConnection = RTCPeerConnection(id);
     final mediaStreams = <MediaStream>[];
     final subscription = peerConnection.addMediaStream
         .listen((stream) => mediaStreams.add(stream));
 
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
-    await channel.invokeMethod('onAddMediaStream', mediaStream.toMap());
+    await _postEvent({
+      'type': 'addMediaStream',
+      'mediaStream': mediaStream.toMap(),
+    });
 
     expect(mediaStreams, equals([mediaStream]));
     subscription.cancel();
   });
 
   test('removeMediaStream', () async {
-    final peerConnection = RTCPeerConnection(id, true);
+    final peerConnection = RTCPeerConnection(id);
     final mediaStreams = <MediaStream>[];
     final subscription = peerConnection.removeMediaStream
         .listen((stream) => mediaStreams.add(stream));
 
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
-    await channel.invokeMethod('onRemoveMediaStream', mediaStream.toMap());
+    await _postEvent({
+      'type': 'removeMediaStream',
+      'mediaStream': mediaStream.toMap(),
+    });
 
     expect(mediaStreams, equals([mediaStream]));
     subscription.cancel();
   });
+
+  test('dispose', () async{
+    final peerConnection = RTCPeerConnection(id);
+
+    await peerConnection.dispose();
+
+    expect(methodCalls.toString(), '[MethodCall(dispose)]');
+  });
+}
+
+Future<void> _postEvent(data) async {
+  // see https://github.com/flutter/flutter/issues/26528#issuecomment-512896634
+  await defaultBinaryMessenger.handlePlatformMessage(
+    '$channelName::$id/events',
+    StandardMethodCodec().encodeSuccessEnvelope(data),
+    (ByteData data) {},
+  );
 }
