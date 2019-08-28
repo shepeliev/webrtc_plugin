@@ -13,7 +13,7 @@ import org.webrtc.VideoSink
 
 private val TAG = MediaStreamBackend::class.java.simpleName
 
-internal class MediaStreamBackend(
+class MediaStreamBackend(
     val mediaStream: MediaStream,
     private val videoCapturer: CameraVideoCapturer?,
     private val backendRegistry: FlutterBackendRegistry

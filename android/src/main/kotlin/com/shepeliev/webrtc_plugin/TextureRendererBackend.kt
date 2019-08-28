@@ -18,7 +18,7 @@ import org.webrtc.VideoFrame
 
 private val TAG = FlutterTextureRenderer::class.java.simpleName
 
-internal class FlutterTextureRenderer(
+class FlutterTextureRenderer(
     registrar: Registrar,
     private val backendRegistry: FlutterBackendRegistry
 ) : EglRenderer(""), FlutterBackend {

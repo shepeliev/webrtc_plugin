@@ -5,12 +5,12 @@ import com.shepeliev.webrtc_plugin.*
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 
-internal interface MethodChannelRegistry {
+interface MethodChannelRegistry {
     fun addFlutterBackend(backend: FlutterBackend)
     fun removePlugin(backend: FlutterBackend)
 }
 
-internal class DefaultMethodChannelRegistry(
+class DefaultMethodChannelRegistry(
     private val registrar: PluginRegistry.Registrar,
     private val methodChannelFactory: MethodChannelFactory = DefaultMethodChannelFactory()
 ) : MethodChannelRegistry {

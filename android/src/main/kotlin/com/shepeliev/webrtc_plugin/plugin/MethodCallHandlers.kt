@@ -5,11 +5,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 
-internal typealias MethodHandler<T> = (MethodCall) -> T?
+typealias MethodHandler<T> = (MethodCall) -> T?
 
 private val TAG = MethodCallHandlers::class.java.simpleName
 
-internal class MethodCallHandlers(vararg handlers: Map<String, MethodHandler<*>>) :
+class MethodCallHandlers(vararg handlers: Map<String, MethodHandler<*>>) :
     MethodChannel.MethodCallHandler {
 
     private val handlers: Map<String, MethodHandler<*>>
