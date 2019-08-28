@@ -15,12 +15,16 @@ class RTCPeerConnection {
   final _iceCandidate = StreamController<IceCandidate>();
   final _removedIceCandidates = StreamController<List<IceCandidate>>();
   final _iceConnectionState = StreamController<IceConnectionState>();
+  final _addMediaStream = StreamController<MediaStream>();
+  final _removeMediaStream = StreamController<MediaStream>();
 
   Stream<IceCandidate> get iceCandidates => _iceCandidate.stream;
   Stream<List<IceCandidate>> get removedIceCandidates =>
       _removedIceCandidates.stream;
   Stream<IceConnectionState> get iceConnectionState =>
       _iceConnectionState.stream;
+  Stream<MediaStream> get addMedaiaStream => _addMediaStream.stream;
+  Stream<MediaStream> get removeMediaStream => _removeMediaStream.stream;
 
   RTCPeerConnection(this.id, [bool mockMethodCallHandler = false])
       : assert(id != null),
@@ -42,6 +46,12 @@ class RTCPeerConnection {
         break;
       case 'onIceConnectionStateChange':
         _onIceConnectionStateChange(methodCall.arguments);
+        break;
+      case 'onAddMediaStream':
+        _onAddMediaStream(methodCall.arguments);
+        break;
+      case 'onRemoveMediaStream':
+        _onRemoveMediaStream(methodCall.arguments);
         break;
       default:
         throw PlatformException(
@@ -66,6 +76,12 @@ class RTCPeerConnection {
 
   void _onIceConnectionStateChange(dynamic arguments) =>
       _iceConnectionState.add(_mapToIceConnectionState(arguments));
+
+  void _onAddMediaStream(dynamic arguments) =>
+      _addMediaStream.add(MediaStream.fromMap(arguments));
+
+  void _onRemoveMediaStream(dynamic arguments) =>
+      _removeMediaStream.add(MediaStream.fromMap(arguments));
 
   IceCandidate _mapToIceCandidate(dynamic map) {
     assert(map is Map<dynamic, dynamic>);
@@ -139,6 +155,17 @@ class RTCPeerConnection {
       'removeIceCandidates',
       iceCandidates.map((item) => item.toMap()).toList(),
     );
+  }
+
+  Future<void> dispose() async {
+    await tryInvokeMethod(_channel, 'dispose');
+    await Future.wait([
+      _addMediaStream.close(),
+      _removeMediaStream.close(),
+      _iceConnectionState.close(),
+      _iceCandidate.close(),
+      _removedIceCandidates.close(),
+    ]);
   }
 }
 

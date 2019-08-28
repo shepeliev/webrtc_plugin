@@ -209,7 +209,37 @@ void main() {
         randomString(), randomInt(max: 1000), randomString(), randomString());
     await channel.invokeMethod('onRemoveIceCandidates', [iceCandidate.toMap()]);
 
-    expect(removedCandidates, [[iceCandidate]]);
+    expect(removedCandidates, [
+      [iceCandidate]
+    ]);
+    subscription.cancel();
+  });
+
+  test('addMediaStream', () async {
+    final peerConnection = RTCPeerConnection(id, true);
+    final mediaStreams = <MediaStream>[];
+    final subscription = peerConnection.addMedaiaStream
+        .listen((stream) => mediaStreams.add(stream));
+
+    final mediaStreamId = randomString();
+    final mediaStream = MediaStream(mediaStreamId);
+    await channel.invokeMethod('onAddMediaStream', mediaStream.toMap());
+
+    expect(mediaStreams, equals([mediaStream]));
+    subscription.cancel();
+  });
+
+  test('removeMediaStream', () async {
+    final peerConnection = RTCPeerConnection(id, true);
+    final mediaStreams = <MediaStream>[];
+    final subscription = peerConnection.removeMediaStream
+        .listen((stream) => mediaStreams.add(stream));
+
+    final mediaStreamId = randomString();
+    final mediaStream = MediaStream(mediaStreamId);
+    await channel.invokeMethod('onRemoveMediaStream', mediaStream.toMap());
+
+    expect(mediaStreams, equals([mediaStream]));
     subscription.cancel();
   });
 }
