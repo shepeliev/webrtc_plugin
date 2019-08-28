@@ -23,7 +23,7 @@ class RTCPeerConnection {
       _removedIceCandidates.stream;
   Stream<IceConnectionState> get iceConnectionState =>
       _iceConnectionState.stream;
-  Stream<MediaStream> get addMedaiaStream => _addMediaStream.stream;
+  Stream<MediaStream> get addMediaStream => _addMediaStream.stream;
   Stream<MediaStream> get removeMediaStream => _removeMediaStream.stream;
 
   RTCPeerConnection(this.id, [bool mockMethodCallHandler = false])
@@ -121,7 +121,7 @@ class RTCPeerConnection {
     return RTCPeerConnection(resultMap['id']);
   }
 
-  Future<void> addMediaStream(MediaStream stream) async {
+  Future<void> addStream(MediaStream stream) async {
     await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
   }
 

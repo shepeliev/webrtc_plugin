@@ -74,7 +74,7 @@ void main() {
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
 
-    await peerConnection.addMediaStream(mediaStream);
+    await peerConnection.addStream(mediaStream);
 
     expect(methodCalls.toString(),
         '[MethodCall(addMediaStream, {id: $mediaStreamId, videoTracks: [], audioTracks: []})]');
@@ -218,7 +218,7 @@ void main() {
   test('addMediaStream', () async {
     final peerConnection = RTCPeerConnection(id, true);
     final mediaStreams = <MediaStream>[];
-    final subscription = peerConnection.addMedaiaStream
+    final subscription = peerConnection.addMediaStream
         .listen((stream) => mediaStreams.add(stream));
 
     final mediaStreamId = randomString();
