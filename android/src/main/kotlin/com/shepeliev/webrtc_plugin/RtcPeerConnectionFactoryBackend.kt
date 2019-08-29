@@ -11,6 +11,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.webrtc.*
+import java.util.concurrent.CountDownLatch
 
 private val TAG = RtcPeerConnectionFactoryBackend::class.java.simpleName
 
@@ -39,42 +40,51 @@ class RtcPeerConnectionFactoryBackend(
     private inner class PeerConnectionObserver(id: String, eventChannel: EventChannel) :
         PeerConnection.Observer {
 
-        private val mainThread = Handler(Looper.getMainLooper())
+        private val uiThread = Handler(Looper.getMainLooper())
         private val tag = "${PeerConnectionObserver::class.java.simpleName}::$id"
         private var countOfEventChannelListeners = 0
         private var eventSink: EventChannel.EventSink? = null
 
+        private val streamHandler = object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink) {
+                countOfEventChannelListeners += 1
+                this@PeerConnectionObserver.eventSink = eventSink
+                Log.d(
+                    tag,
+                    "New event channel listener. Count of listeners: " +
+                            "$countOfEventChannelListeners, EventSink ref: $eventSink."
+                )
+            }
+
+            override fun onCancel(arguments: Any?) {
+                check(countOfEventChannelListeners > 0) {
+                    "Event channel listener canceled listening, " +
+                            "but the counter of listener already is 0."
+                }
+                countOfEventChannelListeners -= 1
+                if (countOfEventChannelListeners == 0) {
+                    eventSink = null
+                }
+                Log.d(
+                    tag,
+                    "Event channel listener canceled listening. " +
+                            "Current count of listeners: $countOfEventChannelListeners"
+                )
+            }
+        }
+
         init {
-            eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
-                override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink) {
-                    countOfEventChannelListeners += 1
-                    this@PeerConnectionObserver.eventSink = eventSink
-                    Log.d(
-                        tag,
-                        "New event channel listener. Count of listeners: $countOfEventChannelListeners, EventSink ref: $eventSink."
-                    )
-                }
-
-                override fun onCancel(arguments: Any?) {
-                    check(countOfEventChannelListeners > 0) {
-                        "Event channel listener canceled listening, but the counter of listener already is 0."
-                    }
-                    countOfEventChannelListeners -= 1
-                    if (countOfEventChannelListeners == 0) {
-                        eventSink = null
-                    }
-                    Log.d(
-                        tag,
-                        "Event channel listener canceled listening. Current count of listeners: $countOfEventChannelListeners"
-                    )
-                }
-            })
-
+            val countDownLatch = CountDownLatch(1)
+            uiThread.post {
+                eventChannel.setStreamHandler(streamHandler)
+                countDownLatch.countDown()
+            }
+            countDownLatch.await()
         }
 
         override fun onIceCandidate(iceCandidate: IceCandidate) {
             Log.d(tag, "onIceCandidate($iceCandidate)")
-            mainThread.post {
+            uiThread.post {
                 eventSink?.success(
                     mapOf(
                         "type" to "iceCandidate",
@@ -94,7 +104,7 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceConnectionChange(newState: PeerConnection.IceConnectionState) {
             Log.d(tag, "onIceConnectionChange($newState)")
-            mainThread.post {
+            uiThread.post {
                 eventSink?.success(
                     mapOf(
                         "type" to "iceConnectionStateChange",
@@ -111,7 +121,7 @@ class RtcPeerConnectionFactoryBackend(
         override fun onAddStream(stream: MediaStream) {
             Log.d(tag, "onAddStream($stream)")
             val mediaStreamBackend = MediaStreamBackend(stream, null, backendRegistry)
-            mainThread.post {
+            uiThread.post {
                 eventSink?.success(
                     mapOf(
                         "type" to "addMediaStream",
@@ -127,7 +137,7 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceCandidatesRemoved(iceCandidates: Array<out IceCandidate>) {
             Log.d(tag, "onIceCandidatesRemoved(${iceCandidates.contentToString()}")
-            mainThread.post {
+            uiThread.post {
                 eventSink?.success(mapOf(
                     "type" to "removeIceCandidates",
                     "iceCandidates" to iceCandidates.map { it.toMap() }
@@ -140,7 +150,7 @@ class RtcPeerConnectionFactoryBackend(
             val mediaStreamBackend = backendRegistry.all
                 .filterIsInstance(MediaStreamBackend::class.java)
                 .first { it.mediaStream.id == stream.id }
-            mainThread.post {
+            uiThread.post {
                 eventSink?.success(
                     mapOf(
                         "type" to "addMediaStream",

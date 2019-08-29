@@ -1,5 +1,7 @@
 package com.shepeliev.webrtc_plugin
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.BackendId
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
@@ -31,6 +33,7 @@ class RtcPeerConnectionBackend(
         "dispose" to ::dispose
     )
 
+    private val uiThread = Handler(Looper.getMainLooper())
     private var disposed = false
 
     init {
@@ -156,8 +159,8 @@ class RtcPeerConnectionBackend(
         if (disposed) return
         Log.d(TAG, "Disposing.")
         peerConnection.dispose()
-        eventChannel.setStreamHandler(null)
         backendRegistry.remove(this)
+        uiThread.post { eventChannel.setStreamHandler(null) }
         disposed = true
     }
 
