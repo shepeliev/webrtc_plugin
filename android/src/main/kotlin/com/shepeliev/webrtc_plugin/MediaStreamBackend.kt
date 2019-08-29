@@ -80,7 +80,7 @@ class MediaStreamBackend(
         return null
     }
 
-    private fun getTextureRenderer(methodCall: MethodCall): FlutterTextureRenderer {
+    private fun getTextureRenderer(methodCall: MethodCall): TextureRendererBackend {
         require(methodCall.hasArgument("rendererId")) { "'rendererId' is required." }
         val rendererId = methodCall.argument<String>("rendererId")!!
         return backendRegistry[rendererId]

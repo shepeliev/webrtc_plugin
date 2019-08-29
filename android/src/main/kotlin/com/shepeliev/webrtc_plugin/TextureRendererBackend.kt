@@ -19,9 +19,9 @@ import org.webrtc.GlRectDrawer
 import org.webrtc.VideoFrame
 import java.util.concurrent.CountDownLatch
 
-private val TAG = FlutterTextureRenderer::class.java.simpleName
+private val TAG = TextureRendererBackend::class.java.simpleName
 
-class FlutterTextureRenderer(
+class TextureRendererBackend(
     registrar: Registrar,
     private val backendRegistry: FlutterBackendRegistry
 ) : EglRenderer(""), FlutterBackend {

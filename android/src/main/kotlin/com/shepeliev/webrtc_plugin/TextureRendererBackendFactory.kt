@@ -17,6 +17,6 @@ class TextureRendererBackendFactory(
 
     @Suppress("UNUSED_PARAMETER")
     private fun createTextureRenderer(methodCall: MethodCall): Map<String, Any> =
-        FlutterTextureRenderer(registrar, backendRegistry)
+        TextureRendererBackend(registrar, backendRegistry)
             .let { mapOf("id" to it.id, "textureId" to it.textureId) }
 }

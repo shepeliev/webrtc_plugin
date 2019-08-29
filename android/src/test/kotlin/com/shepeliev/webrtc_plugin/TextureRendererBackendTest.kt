@@ -33,7 +33,7 @@ class TextureRendererBackendTest {
     @Mock private lateinit var backendRegistry: FlutterBackendRegistry
 
     private val textureId = Random(1).nextLong()
-    private lateinit var renderer: FlutterTextureRenderer
+    private lateinit var rendererBackend: TextureRendererBackend
 
     @Before
     fun setUp() {
@@ -42,23 +42,23 @@ class TextureRendererBackendTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.surfaceTexture()) doReturn texture
 
-        renderer = FlutterTextureRenderer(registrar, backendRegistry)
+        rendererBackend = TextureRendererBackend(registrar, backendRegistry)
     }
 
     @Test
     fun constructor() {
-        verify(backendRegistry).add(renderer)
+        verify(backendRegistry).add(rendererBackend)
     }
 
     @Test
     fun getId() {
-        assertThat(renderer.id).isNotEmpty()
+        assertThat(rendererBackend.id).isNotEmpty()
     }
 
     @Test
     fun getTextureId() {
         whenever(textureEntry.id()) doReturn textureId
-        assertThat(renderer.textureId).isEqualTo(textureId)
+        assertThat(rendererBackend.textureId).isEqualTo(textureId)
     }
 
     @Test
@@ -69,19 +69,19 @@ class TextureRendererBackendTest {
         }
         val frame = VideoFrame(buffer, 0, 0)
 
-        renderer.onFrame(frame)
+        rendererBackend.onFrame(frame)
 
         verify(texture).setDefaultBufferSize(1280, 720)
     }
 
     @Test
     fun dispose() {
-        val handler = renderer.methodHandlers.getValue("dispose")
+        val handler = rendererBackend.methodHandlers.getValue("dispose")
 
         handler(MethodCall("dispose", null))
 
         verify(texture).release()
         verify(textureEntry).release()
-        verify(backendRegistry).remove(renderer)
+        verify(backendRegistry).remove(rendererBackend)
     }
 }
