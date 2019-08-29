@@ -1,5 +1,6 @@
 package com.shepeliev.webrtc_plugin.plugin
 
+import android.os.AsyncTask
 import android.util.Log
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -23,26 +24,34 @@ class MethodCallHandlers(vararg handlers: Map<String, MethodHandler<*>>) :
         handlers.filterKeys { it == methodCall.method }
             .values
             .firstOrNull()
-            ?.let { tryExecuteMethod(methodCall, result, it) }
+            ?.let { HandleMethodTask(it, result).execute(methodCall) }
             ?: run {
                 Log.e(TAG, "Method '${methodCall.method}' is not implemented yet.")
                 result.notImplemented()
             }
     }
 
-    private fun tryExecuteMethod(
-        methodCall: MethodCall,
-        result: Result,
-        handler: MethodHandler<*>
-    ) {
-        try {
+}
+
+private class HandleMethodTask(
+    private val handler: MethodHandler<*>,
+    private val methodChannelResult: Result
+) : AsyncTask<MethodCall, Nothing, Pair<Throwable?, Any?>>() {
+
+    override fun doInBackground(vararg params: MethodCall): Pair<Throwable?, Any?> {
+        val methodCall = params[0]
+        return try {
             val handlerResult = handler(methodCall)
-            result.success(handlerResult)
+            Pair(null, handlerResult)
         } catch (e: Throwable) {
-            val message =
-                "{method=\"${methodCall.method}\", arguments=${methodCall.arguments}, errorMessage=\"${e.message}\"}"
+            val message = "{method=\"${methodCall.method}\", arguments=${methodCall.arguments}}"
             Log.e(TAG, message, e)
-            result.error("UNHANDLED_EXCEPTION", message, e)
+            Pair(e, null)
         }
+    }
+
+    override fun onPostExecute(result: Pair<Throwable?, Any?>) {
+        result.first?.let { methodChannelResult.error("UNHANDLED_EXCEPTION", it.message, it) }
+            ?: methodChannelResult.success(result.second)
     }
 }
