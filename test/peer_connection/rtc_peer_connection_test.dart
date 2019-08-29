@@ -75,12 +75,14 @@ void main() {
   });
 
   test('addMediaStream', () async {
+    mockMethodHandler = (methodCall) async => true;
     final peerConnection = RTCPeerConnection(id);
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
 
-    await peerConnection.addStream(mediaStream);
+    final result = await peerConnection.addStream(mediaStream);
 
+    expect(result, isTrue);
     expect(methodCalls.toString(),
         '[MethodCall(addMediaStream, {id: $mediaStreamId, videoTracks: [], audioTracks: []})]');
   });
@@ -137,6 +139,7 @@ void main() {
   });
 
   test('addIceCandidate', () async {
+    mockMethodHandler = (methodCall) async => true;
     final peerConnection = RTCPeerConnection(id);
     final iceCandidate = IceCandidate(
       randomString(),
@@ -145,13 +148,15 @@ void main() {
       randomString(),
     );
 
-    await peerConnection.addIceCandidate(iceCandidate);
+    final result = await peerConnection.addIceCandidate(iceCandidate);
 
+    expect(result, isTrue);
     expect(methodCalls.toString(),
         '[MethodCall(addIceCandidate, {sdpMid: ${iceCandidate.sdpMid}, sdpMLineIndex: ${iceCandidate.sdpMLineIndex}, sdp: ${iceCandidate.sdp}, serverUrl: ${iceCandidate.serverUrl}})]');
   });
 
   test('removeIceCandidates', () async {
+    mockMethodHandler = (methodCall) async => true;
     final peerConnection = RTCPeerConnection(id);
     final iceCandidate = IceCandidate(
       randomString(),
@@ -160,8 +165,9 @@ void main() {
       randomString(),
     );
 
-    await peerConnection.removeIceCandidates([iceCandidate]);
+    final result = await peerConnection.removeIceCandidates([iceCandidate]);
 
+    expect(result, isTrue);
     expect(methodCalls.toString(),
         '[MethodCall(removeIceCandidates, [{sdpMid: ${iceCandidate.sdpMid}, sdpMLineIndex: ${iceCandidate.sdpMLineIndex}, sdp: ${iceCandidate.sdp}, serverUrl: ${iceCandidate.serverUrl}}])]');
   });

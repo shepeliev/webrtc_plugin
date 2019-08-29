@@ -20,6 +20,7 @@ object WebrtcPlugin {
 
         val globalPlugins = listOf(
             TextureRendererBackendFactory(registrar, backendRegistry),
+            RtcPeerConnectionFactoryBackend(registrar, PCF.instance, backendRegistry),
             MediaBackend(
                 PCF.instance,
                 DefaultVideoCapturerFactory(registrar.context()),

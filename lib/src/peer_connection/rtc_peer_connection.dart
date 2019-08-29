@@ -71,9 +71,8 @@ class RTCPeerConnection {
     return RTCPeerConnection(resultMap['id']);
   }
 
-  Future<void> addStream(MediaStream stream) async {
-    await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
-  }
+  Future<bool> addStream(MediaStream stream) async =>
+      await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
 
   Future<SessionDescription> createOffer(SdpConstraints constraints) async {
     final resultMap =
@@ -87,25 +86,21 @@ class RTCPeerConnection {
     return SessionDescription.fromMap(resultMap);
   }
 
-  Future<void> setLocalDescription(SessionDescription sdp) async {
-    await tryInvokeMethod(_channel, 'setLocalDescription', sdp.toMap());
-  }
+  Future<void> setLocalDescription(SessionDescription sdp) async =>
+      await tryInvokeMethod(_channel, 'setLocalDescription', sdp.toMap());
 
-  Future<void> setRemoteDescription(SessionDescription sdp) async {
-    await tryInvokeMethod(_channel, 'setRemoteDescription', sdp.toMap());
-  }
+  Future<void> setRemoteDescription(SessionDescription sdp) async =>
+      await tryInvokeMethod(_channel, 'setRemoteDescription', sdp.toMap());
 
-  Future<void> addIceCandidate(IceCandidate iceCandidate) async {
-    await tryInvokeMethod(_channel, 'addIceCandidate', iceCandidate.toMap());
-  }
+  Future<bool> addIceCandidate(IceCandidate iceCandidate) async =>
+      await tryInvokeMethod(_channel, 'addIceCandidate', iceCandidate.toMap());
 
-  Future<void> removeIceCandidates(List<IceCandidate> iceCandidates) async {
-    await tryInvokeMethod(
-      _channel,
-      'removeIceCandidates',
-      iceCandidates.map((item) => item.toMap()).toList(),
-    );
-  }
+  Future<bool> removeIceCandidates(List<IceCandidate> iceCandidates) async =>
+      await tryInvokeMethod(
+        _channel,
+        'removeIceCandidates',
+        iceCandidates.map((item) => item.toMap()).toList(),
+      );
 
   Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
 }
