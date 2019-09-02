@@ -2,10 +2,6 @@ package com.shepeliev.webrtc_plugin
 
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.*
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
-import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.newStringId
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.MediaStream
@@ -13,7 +9,7 @@ import org.webrtc.VideoSink
 
 private val TAG = MediaStreamBackend::class.java.simpleName
 
-internal class MediaStreamBackend(
+class MediaStreamBackend(
     val mediaStream: MediaStream,
     private val videoCapturer: CameraVideoCapturer?,
     private val backendRegistry: FlutterBackendRegistry
@@ -84,10 +80,16 @@ internal class MediaStreamBackend(
         return null
     }
 
-    private fun getTextureRenderer(methodCall: MethodCall): FlutterTextureRenderer {
+    private fun getTextureRenderer(methodCall: MethodCall): TextureRendererBackend {
         require(methodCall.hasArgument("rendererId")) { "'rendererId' is required." }
         val rendererId = methodCall.argument<String>("rendererId")!!
         return backendRegistry[rendererId]
+    }
+
+    fun toMap(): Map<String, Any> {
+        val audioTracks = mediaStream.audioTracks.map { mapOf("id" to it.id()) }
+        val videoTracks = mediaStream.videoTracks.map { mapOf("id" to it.id()) }
+        return mapOf("id" to id, "audioTracks" to audioTracks, "videoTracks" to videoTracks)
     }
 
     protected fun finalize() {

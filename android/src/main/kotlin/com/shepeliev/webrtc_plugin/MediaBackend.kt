@@ -12,7 +12,7 @@ import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.VideoSource
 
-internal class MediaBackend(
+class MediaBackend(
     private val peerConnectionFactory: PeerConnectionFactory,
     private val videoCapturerFactory: VideoCapturerFactory,
     private val backendRegistry: FlutterBackendRegistry,

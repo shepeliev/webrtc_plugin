@@ -53,7 +53,7 @@ class TextureRendererBackendFactoryTest {
         @Suppress("UNCHECKED_CAST")
         val result = handler(MethodCall("createTextureRenderer", null)) as Map<String, Any?>
 
-        argumentCaptor<FlutterTextureRenderer>().apply {
+        argumentCaptor<TextureRendererBackend>().apply {
             verify(backendRegistry).add(capture())
             assertThat(firstValue.id).isEqualTo(result["id"])
             assertThat(firstValue.textureId).isEqualTo(result["textureId"])

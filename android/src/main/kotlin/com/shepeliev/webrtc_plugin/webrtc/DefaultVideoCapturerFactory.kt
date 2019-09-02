@@ -9,7 +9,7 @@ import org.webrtc.SurfaceTextureHelper
 
 private val TAG = DefaultVideoCapturerFactory::class.java.simpleName
 
-internal class DefaultVideoCapturerFactory(private val context: Context) :
+class DefaultVideoCapturerFactory(private val context: Context) :
     VideoCapturerFactory {
     private val surfaceTextureHelper =
         SurfaceTextureHelper.create(

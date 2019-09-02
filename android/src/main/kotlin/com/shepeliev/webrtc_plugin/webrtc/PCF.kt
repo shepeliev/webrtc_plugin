@@ -5,7 +5,7 @@ import com.shepeliev.webrtc_plugin.BuildConfig
 import com.shepeliev.webrtc_plugin.plugin.newId
 import org.webrtc.*
 
-internal object PCF {
+object PCF {
     private var _peerConnectionFactory: PeerConnectionFactory? = null
     val instance: PeerConnectionFactory
         get() = _peerConnectionFactory ?: error("PeerConnectionFactory is not initialized yet.")

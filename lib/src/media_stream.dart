@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
@@ -38,6 +39,29 @@ class MediaStream {
 
   Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'videoTracks': videoTracks.map((track) => track.toMap()).toList(),
+      'audioTracks': videoTracks.map((track) => track.toMap()).toList()
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is MediaStream &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              listEquals(videoTracks, other.videoTracks) &&
+              listEquals(audioTracks, other.audioTracks);
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      videoTracks.hashCode ^
+      audioTracks.hashCode;
+
   @override
   String toString() {
     return 'MediaStream{id: $id, videoTracks: $videoTracks, audioTracks: $audioTracks}';
@@ -54,6 +78,18 @@ class AudioTrack {
     return AudioTrack(map['id']);
   }
 
+  Map<String, dynamic> toMap() => {'id': id};
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is AudioTrack &&
+              runtimeType == other.runtimeType &&
+              id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   @override
   String toString() {
     return 'AudioTrack{id: $id}';
@@ -62,14 +98,25 @@ class AudioTrack {
 
 class VideoTrack {
   final String id;
-  final MethodChannel _channel;
 
-  VideoTrack(this.id) : _channel = MethodChannel('$channelName::$id');
+  VideoTrack(this.id);
 
   factory VideoTrack.fromMap(Map<dynamic, dynamic> map) {
     assert(map != null);
     return VideoTrack(map['id']);
   }
+
+  Map<String, dynamic> toMap() => {'id': id};
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is VideoTrack &&
+              runtimeType == other.runtimeType &&
+              id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 
   @override
   String toString() {

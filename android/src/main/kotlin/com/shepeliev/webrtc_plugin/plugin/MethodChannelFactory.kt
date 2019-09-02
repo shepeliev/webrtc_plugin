@@ -3,7 +3,7 @@ package com.shepeliev.webrtc_plugin.plugin
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-internal interface MethodChannelFactory {
+interface MethodChannelFactory {
     fun createMethodChannel(
         registrar: Registrar,
         channelName: String,
@@ -11,7 +11,7 @@ internal interface MethodChannelFactory {
     ): MethodChannel
 }
 
-internal class DefaultMethodChannelFactory : MethodChannelFactory {
+class DefaultMethodChannelFactory : MethodChannelFactory {
     override fun createMethodChannel(
         registrar: Registrar,
         channelName: String,
