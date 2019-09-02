@@ -42,34 +42,15 @@ class RtcPeerConnectionFactoryBackend(
 
         private val uiThread = Handler(Looper.getMainLooper())
         private val tag = "${PeerConnectionObserver::class.java.simpleName}::$id"
-        private var countOfEventChannelListeners = 0
         private var eventSink: EventChannel.EventSink? = null
 
         private val streamHandler = object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink) {
-                countOfEventChannelListeners += 1
                 this@PeerConnectionObserver.eventSink = eventSink
-                Log.d(
-                    tag,
-                    "New event channel listener. Count of listeners: " +
-                            "$countOfEventChannelListeners, EventSink ref: $eventSink."
-                )
             }
 
             override fun onCancel(arguments: Any?) {
-                check(countOfEventChannelListeners > 0) {
-                    "Event channel listener canceled listening, " +
-                            "but the counter of listener already is 0."
-                }
-                countOfEventChannelListeners -= 1
-                if (countOfEventChannelListeners == 0) {
-                    eventSink = null
-                }
-                Log.d(
-                    tag,
-                    "Event channel listener canceled listening. " +
-                            "Current count of listeners: $countOfEventChannelListeners"
-                )
+                eventSink = null
             }
         }
 
