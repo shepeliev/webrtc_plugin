@@ -180,9 +180,11 @@ void main() {
 
     await _postEvent({'type': 'iceConnectionStateChange', 'state': 'NEW'});
     await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CHECKING'});
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CONNECTED'});
+    await _postEvent(
+        {'type': 'iceConnectionStateChange', 'state': 'CONNECTED'});
     await _postEvent({'type': 'iceConnectionStateChange', 'state': 'FAILED'});
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'DISCONNECTED'});
+    await _postEvent(
+        {'type': 'iceConnectionStateChange', 'state': 'DISCONNECTED'});
     await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CLOSED'});
 
     expect(states, [
@@ -236,41 +238,45 @@ void main() {
     subscription.cancel();
   });
 
-  test('addMediaStream', () async {
-    final peerConnection = RtcPeerConnection(id);
-    final mediaStreams = <MediaStream>[];
-    final subscription = peerConnection.addMediaStream
-        .listen((stream) => mediaStreams.add(stream));
+  group('remoteMediaStream', () {
+    test('adding', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final remoteStreams = <RemoteMediaStream>[];
+      final subscription = peerConnection.remoteMediaStream
+          .listen((stream) => remoteStreams.add(stream));
 
-    final mediaStreamId = randomString();
-    final mediaStream = MediaStream(mediaStreamId);
-    await _postEvent({
-      'type': 'addMediaStream',
-      'mediaStream': mediaStream.toMap(),
+      final mediaStreamId = randomString();
+      final mediaStream = MediaStream(mediaStreamId);
+      await _postEvent({
+        'type': 'addMediaStream',
+        'mediaStream': mediaStream.toMap(),
+      });
+
+      expect(remoteStreams[0].adding, mediaStream);
+      expect(remoteStreams[0].removing, isNull);
+      subscription.cancel();
     });
 
-    expect(mediaStreams, equals([mediaStream]));
-    subscription.cancel();
-  });
+    test('removing', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final remoteStreams = <RemoteMediaStream>[];
+      final subscription = peerConnection.remoteMediaStream
+          .listen((stream) => remoteStreams.add(stream));
 
-  test('removeMediaStream', () async {
-    final peerConnection = RtcPeerConnection(id);
-    final mediaStreams = <MediaStream>[];
-    final subscription = peerConnection.removeMediaStream
-        .listen((stream) => mediaStreams.add(stream));
+      final mediaStreamId = randomString();
+      final mediaStream = MediaStream(mediaStreamId);
+      await _postEvent({
+        'type': 'removeMediaStream',
+        'mediaStream': mediaStream.toMap(),
+      });
 
-    final mediaStreamId = randomString();
-    final mediaStream = MediaStream(mediaStreamId);
-    await _postEvent({
-      'type': 'removeMediaStream',
-      'mediaStream': mediaStream.toMap(),
+      expect(remoteStreams[0].adding, isNull);
+      expect(remoteStreams[0].removing, mediaStream);
+      subscription.cancel();
     });
-
-    expect(mediaStreams, equals([mediaStream]));
-    subscription.cancel();
   });
 
-  test('dispose', () async{
+  test('dispose', () async {
     final peerConnection = RtcPeerConnection(id);
 
     await peerConnection.dispose();

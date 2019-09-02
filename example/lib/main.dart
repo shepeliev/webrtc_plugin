@@ -166,9 +166,9 @@ class _MyAppState extends State<MyApp> {
           (iceCandidate) =>
               _localPeerConnection.addIceCandidate(iceCandidate)));
       _remoteSubscriptions
-          .add(_remotePeerConnection.addMediaStream.listen((mediaStream) {
+          .add(_remotePeerConnection.remoteMediaStream.listen((mediaStream) {
         setState(() {
-          _remoteMediaStream = mediaStream;
+          _remoteMediaStream = mediaStream.adding;
         });
       }));
       _remotePeerConnection.iceConnectionState.listen((state) {

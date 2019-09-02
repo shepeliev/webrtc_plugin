@@ -14,33 +14,38 @@ class RtcPeerConnection {
   final MethodChannel _channel;
   final Stream<dynamic> _eventStream;
 
-  Stream<IceCandidate> get iceCandidates => _eventStream
-      .where((event) => event['type'] == 'iceCandidate')
-      .map((event) => IceCandidate.fromMap(event['iceCandidate']));
+  Stream<IceCandidate> get iceCandidates =>
+      _eventStream
+          .where((event) => event['type'] == 'iceCandidate')
+          .map((event) => IceCandidate.fromMap(event['iceCandidate']));
 
-  Stream<List<IceCandidate>> get removedIceCandidates => _eventStream
-      .where((event) => event['type'] == 'removeIceCandidates')
-      .map((event) => event['iceCandidates'] as List)
-      .map((candidates) =>
+  Stream<List<IceCandidate>> get removedIceCandidates =>
+      _eventStream
+          .where((event) => event['type'] == 'removeIceCandidates')
+          .map((event) => event['iceCandidates'] as List)
+          .map((candidates) =>
           candidates.map((item) => IceCandidate.fromMap(item)).toList());
 
-  Stream<IceConnectionState> get iceConnectionState => _eventStream
-      .where((event) => event['type'] == 'iceConnectionStateChange')
-      .map((event) => _mapToIceConnectionState(event['state']));
+  Stream<IceConnectionState> get iceConnectionState =>
+      _eventStream
+          .where((event) => event['type'] == 'iceConnectionStateChange')
+          .map((event) => _mapToIceConnectionState(event['state']));
 
-  Stream<MediaStream> get addMediaStream => _eventStream
-      .where((event) => event['type'] == 'addMediaStream')
-      .map((event) => MediaStream.fromMap(event['mediaStream']));
-
-  Stream<MediaStream> get removeMediaStream => _eventStream
-      .where((event) => event['type'] == 'removeMediaStream')
-      .map((event) => MediaStream.fromMap(event['mediaStream']));
+  Stream<RemoteMediaStream> get remoteMediaStream =>
+      _eventStream.where((event) {
+        return ['addMediaStream', 'removeMediaStream'].contains(event['type']);
+      }).map((event) {
+        final stream = MediaStream.fromMap(event['mediaStream']);
+        return event['type'] == 'addMediaStream'
+            ? RemoteMediaStream(adding: stream)
+            : RemoteMediaStream(removing: stream);
+      });
 
   RtcPeerConnection(this.id)
       : assert(id != null),
         _channel = MethodChannel('$channelName::$id'),
         _eventStream =
-            EventChannel('$channelName::$id/events').receiveBroadcastStream();
+        EventChannel('$channelName::$id/events').receiveBroadcastStream();
 
   IceConnectionState _mapToIceConnectionState(dynamic arguments) {
     switch (arguments) {
@@ -78,13 +83,13 @@ class RtcPeerConnection {
 
   Future<SessionDescription> createOffer(SdpConstraints constraints) async {
     final resultMap =
-        await tryInvokeMapMethod(_channel, 'createOffer', constraints.toMap());
+    await tryInvokeMapMethod(_channel, 'createOffer', constraints.toMap());
     return SessionDescription.fromMap(resultMap);
   }
 
   Future<SessionDescription> createAnswer(SdpConstraints constraints) async {
     final resultMap =
-        await tryInvokeMapMethod(_channel, 'createAnswer', constraints.toMap());
+    await tryInvokeMapMethod(_channel, 'createAnswer', constraints.toMap());
     return SessionDescription.fromMap(resultMap);
   }
 
@@ -115,4 +120,11 @@ enum IceConnectionState {
   disconnected,
   closed,
   completed
+}
+
+class RemoteMediaStream {
+  final MediaStream adding;
+  final MediaStream removing;
+
+  RemoteMediaStream({this.adding, this.removing});
 }
