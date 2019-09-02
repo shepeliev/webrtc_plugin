@@ -46,7 +46,7 @@ void main() {
         return {'id': id};
       };
 
-      final peerConnection = await RTCPeerConnection.create();
+      final peerConnection = await RtcPeerConnection.create();
 
       expect(globalMethodCalls.toString(),
           '[MethodCall(createPeerConnection, null)]');
@@ -65,7 +65,7 @@ void main() {
           password: "super_password",
           tlsCertPolicy: TlsCertPolicy.secure,
           hostname: "host1");
-      final peerConnection = await RTCPeerConnection.create([iceServer]);
+      final peerConnection = await RtcPeerConnection.create([iceServer]);
 
       expect(globalMethodCalls.toString(),
           '[MethodCall(createPeerConnection, [{urls: [url1, url2], username: user, password: super_password, tlsCertPolicy: secure, hostname: host1, tlsAlpnProtocols: null, tlsEllipticCurves: null}])]');
@@ -76,7 +76,7 @@ void main() {
 
   test('addMediaStream', () async {
     mockMethodHandler = (methodCall) async => true;
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
 
@@ -90,7 +90,7 @@ void main() {
   test('createOffer', () async {
     mockMethodHandler =
         (methodCall) async => {'type': 'OFFER', 'description': 'description'};
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final constraints =
         SdpConstraints(offerToReceiveVideo: true, offerToReceiveAudio: true);
 
@@ -105,7 +105,7 @@ void main() {
   test('createAnswer', () async {
     mockMethodHandler =
         (methodCall) async => {'type': 'ANSWER', 'description': 'description'};
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final constraints =
         SdpConstraints(offerToReceiveVideo: true, offerToReceiveAudio: true);
 
@@ -118,7 +118,7 @@ void main() {
   });
 
   test('setLocalDescription', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final sdp = SessionDescription(SessionDescriptionType.offer, 'description');
 
     await peerConnection.setLocalDescription(sdp);
@@ -128,7 +128,7 @@ void main() {
   });
 
   test('setRemoteDescription', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final sdp =
         SessionDescription(SessionDescriptionType.answer, 'description');
 
@@ -140,7 +140,7 @@ void main() {
 
   test('addIceCandidate', () async {
     mockMethodHandler = (methodCall) async => true;
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final iceCandidate = IceCandidate(
       randomString(),
       randomInt(max: 1000),
@@ -157,7 +157,7 @@ void main() {
 
   test('removeIceCandidates', () async {
     mockMethodHandler = (methodCall) async => true;
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final iceCandidate = IceCandidate(
       randomString(),
       randomInt(max: 1000),
@@ -173,7 +173,7 @@ void main() {
   });
 
   test('iceConnectionState', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final states = <IceConnectionState>[];
     final subscription =
         peerConnection.iceConnectionState.listen((state) => states.add(state));
@@ -197,7 +197,7 @@ void main() {
   });
 
   test('iceCandidates', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final candidates = <IceCandidate>[];
     final subscription = peerConnection.iceCandidates
         .listen((candidate) => candidates.add(candidate));
@@ -218,7 +218,7 @@ void main() {
   });
 
   test('removedIceCandidates', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final removedCandidates = <List<IceCandidate>>[];
     final subscription = peerConnection.removedIceCandidates
         .listen((candidates) => removedCandidates.add(candidates));
@@ -237,7 +237,7 @@ void main() {
   });
 
   test('addMediaStream', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final mediaStreams = <MediaStream>[];
     final subscription = peerConnection.addMediaStream
         .listen((stream) => mediaStreams.add(stream));
@@ -254,7 +254,7 @@ void main() {
   });
 
   test('removeMediaStream', () async {
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
     final mediaStreams = <MediaStream>[];
     final subscription = peerConnection.removeMediaStream
         .listen((stream) => mediaStreams.add(stream));
@@ -271,7 +271,7 @@ void main() {
   });
 
   test('dispose', () async{
-    final peerConnection = RTCPeerConnection(id);
+    final peerConnection = RtcPeerConnection(id);
 
     await peerConnection.dispose();
 

@@ -21,8 +21,8 @@ class _MyAppState extends State<MyApp> {
   CallState _callState = CallState.hangup;
   MediaStream _localMediaStream;
   MediaStream _remoteMediaStream;
-  RTCPeerConnection _localPeerConnection;
-  RTCPeerConnection _remotePeerConnection;
+  RtcPeerConnection _localPeerConnection;
+  RtcPeerConnection _remotePeerConnection;
   SessionDescription _offer;
   List<StreamSubscription> _remoteSubscriptions;
   final List<StreamSubscription> _localSubscriptions = [];
@@ -36,11 +36,11 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> initWebRtcState() async {
     MediaStream localMediaStream;
-    RTCPeerConnection localPeerConnection;
+    RtcPeerConnection localPeerConnection;
 
     try {
       localMediaStream = await getUserMedia();
-      localPeerConnection = await RTCPeerConnection.create();
+      localPeerConnection = await RtcPeerConnection.create();
       await localPeerConnection.addStream(localMediaStream);
     } on PlatformException catch (e) {
       print(e);
@@ -160,7 +160,7 @@ class _MyAppState extends State<MyApp> {
     });
 
     try {
-      _remotePeerConnection = await RTCPeerConnection.create();
+      _remotePeerConnection = await RtcPeerConnection.create();
       _remoteSubscriptions = <StreamSubscription>[];
       _remoteSubscriptions.add(_remotePeerConnection.iceCandidates.listen(
           (iceCandidate) =>

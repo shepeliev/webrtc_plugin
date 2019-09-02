@@ -9,7 +9,7 @@ import 'ice_server.dart';
 import 'session_description.dart';
 import 'session_description_constraints.dart';
 
-class RTCPeerConnection {
+class RtcPeerConnection {
   final String id;
   final MethodChannel _channel;
   final Stream<dynamic> _eventStream;
@@ -36,7 +36,7 @@ class RTCPeerConnection {
       .where((event) => event['type'] == 'removeMediaStream')
       .map((event) => MediaStream.fromMap(event['mediaStream']));
 
-  RTCPeerConnection(this.id)
+  RtcPeerConnection(this.id)
       : assert(id != null),
         _channel = MethodChannel('$channelName::$id'),
         _eventStream =
@@ -66,11 +66,11 @@ class RTCPeerConnection {
     }
   }
 
-  static Future<RTCPeerConnection> create([List<IceServer> iceServers]) async {
+  static Future<RtcPeerConnection> create([List<IceServer> iceServers]) async {
     final iceServersMap = iceServers?.map((it) => it.toMap())?.toList();
     final resultMap = await tryInvokeMapMethod(
         globalChannel, "createPeerConnection", iceServersMap);
-    return RTCPeerConnection(resultMap['id']);
+    return RtcPeerConnection(resultMap['id']);
   }
 
   Future<bool> addStream(MediaStream stream) async =>
