@@ -27,14 +27,47 @@ class RtcPeerConnectionFactoryBackend(
     )
 
     private fun createPeerConnection(methodCall: MethodCall): Map<String, Any> {
-        // TODO implement parsing IceServer
         val id = newStringId()
         val eventChannelName = "$METHOD_CHANNEL_NAME::$id/events"
         val eventChannel = EventChannel(registrar.messenger(), eventChannelName)
-        val peerConnection = peerConnectionFactory
-            .createPeerConnection(emptyList(), PeerConnectionObserver(id, eventChannel))
-            ?: error("Could not create PeerConnection.")
+        val peerConnection = peerConnectionFactory.createPeerConnection(
+            getIceServers(methodCall),
+            PeerConnectionObserver(id, eventChannel)
+        ) ?: error("Could not create PeerConnection.")
         return RtcPeerConnectionBackend(id, peerConnection, eventChannel, backendRegistry).toMap()
+    }
+
+    private fun getIceServers(methodCall: MethodCall): List<PeerConnection.IceServer> {
+        if (methodCall.arguments == null) return emptyList()
+        require(methodCall.arguments is List<*>) { "The argument is not a List" }
+        @Suppress("UNCHECKED_CAST")
+        val iceServers = methodCall.arguments as List<Map<String, *>>
+        return iceServers.map { it.toIceServer() }
+    }
+
+    private fun Map<String, *>.toIceServer(): PeerConnection.IceServer {
+        @Suppress("UNCHECKED_CAST")
+        val urls = getValue("urls") as List<String>
+        val username = getValue("username") as String
+        val password = getValue("password") as String
+        val tlsCertPolicy = when (getValue("tlsCertPolicy")) {
+            "secure" -> PeerConnection.TlsCertPolicy.TLS_CERT_POLICY_SECURE
+            "insecure_no_check" -> PeerConnection.TlsCertPolicy.TLS_CERT_POLICY_INSECURE_NO_CHECK
+            else -> throw IllegalArgumentException("Illegal TlsCertPolicy")
+        }
+        val hostname = getValue("hostname") as String
+        @Suppress("UNCHECKED_CAST")
+        val tlsAlpnProtocols = get("tlsAlpnProtocols") as? List<String>
+        @Suppress("UNCHECKED_CAST")
+        val tlsEllipticCurves = get("tlsAlpnProtocols") as? List<String>
+        return PeerConnection.IceServer.builder(urls)
+            .setUsername(username)
+            .setPassword(password)
+            .setTlsCertPolicy(tlsCertPolicy)
+            .setHostname(hostname)
+            .setTlsAlpnProtocols(tlsAlpnProtocols)
+            .setTlsEllipticCurves(tlsEllipticCurves)
+            .createIceServer()
     }
 
     private inner class PeerConnectionObserver(id: String, eventChannel: EventChannel) :
