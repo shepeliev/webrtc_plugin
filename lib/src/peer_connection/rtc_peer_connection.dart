@@ -56,6 +56,8 @@ class RTCPeerConnection {
         return IceConnectionState.disconnected;
       case 'CLOSED':
         return IceConnectionState.closed;
+      case 'COMPLETED':
+        return IceConnectionState.completed;
       default:
         throw PlatformException(
           code: 'ILLEGAL_ARGUMENT',
@@ -111,5 +113,6 @@ enum IceConnectionState {
   connected,
   failed,
   disconnected,
-  closed
+  closed,
+  completed
 }

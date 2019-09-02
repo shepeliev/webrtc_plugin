@@ -3,7 +3,7 @@ class SdpConstraints {
   final bool offerToReceiveVideo;
   final bool iceRestart;
 
-  SdpConstraints(
+  const SdpConstraints(
       {this.offerToReceiveAudio,
       this.offerToReceiveVideo,
       this.iceRestart = false});
