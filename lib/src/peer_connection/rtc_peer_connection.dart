@@ -66,10 +66,10 @@ class RTCPeerConnection {
     }
   }
 
-  static Future<RTCPeerConnection> create([IceServer iceServer]) async {
-    final iceServerMap = iceServer != null ? iceServer.toMap() : null;
+  static Future<RTCPeerConnection> create([List<IceServer> iceServers]) async {
+    final iceServersMap = iceServers?.map((it) => it.toMap())?.toList();
     final resultMap = await tryInvokeMapMethod(
-        globalChannel, "createPeerConnection", iceServerMap);
+        globalChannel, "createPeerConnection", iceServersMap);
     return RTCPeerConnection(resultMap['id']);
   }
 

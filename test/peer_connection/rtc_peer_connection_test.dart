@@ -65,10 +65,10 @@ void main() {
           password: "super_password",
           tlsCertPolicy: TlsCertPolicy.secure,
           hostname: "host1");
-      final peerConnection = await RTCPeerConnection.create(iceServer);
+      final peerConnection = await RTCPeerConnection.create([iceServer]);
 
       expect(globalMethodCalls.toString(),
-          '[MethodCall(createPeerConnection, {urls: [url1, url2], username: user, password: super_password, tlsCertPolicy: secure, hostname: host1, tlsAlpnProtocols: null, tlsEllipticCurves: null})]');
+          '[MethodCall(createPeerConnection, [{urls: [url1, url2], username: user, password: super_password, tlsCertPolicy: secure, hostname: host1, tlsAlpnProtocols: null, tlsEllipticCurves: null}])]');
       expect(peerConnection, isNotNull);
       expect(peerConnection.id, id);
     });
