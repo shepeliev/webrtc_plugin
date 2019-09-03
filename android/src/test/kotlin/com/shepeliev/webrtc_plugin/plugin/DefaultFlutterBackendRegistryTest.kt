@@ -21,7 +21,8 @@ class DefaultFlutterBackendRegistryTest {
     fun setUp() {
         fakePlugin1 = FakeBackend()
         fakePlugin2 = FakeBackend()
-        registry = DefaultFlutterBackendRegistry(methodChannelRegistry)
+        registry = DefaultFlutterBackendRegistry()
+            .also { it.methodChannelRegistry = methodChannelRegistry }
     }
 
     @Test
@@ -63,7 +64,7 @@ class DefaultFlutterBackendRegistryTest {
 }
 
 private class FakeBackend(
-    override val id: BackendId = newId(),
+    override val id: BackendId = newStringId(),
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf()
 ) : FlutterBackend
 
