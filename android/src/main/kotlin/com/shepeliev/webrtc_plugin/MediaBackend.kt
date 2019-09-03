@@ -26,13 +26,10 @@ class MediaBackend(
     override val methodHandlers: Map<String, MethodHandler<*>> =
         mapOf("getUserMedia" to ::getUserMedia)
 
-    private var currentMediaStreamBackendId: String? = null
-
     private fun getUserMedia(methodCall: MethodCall): Map<String, Any> {
         require(methodCall.hasArgument("audio") || methodCall.hasArgument("video")) {
             "At least audio or video media must be requested."
         }
-        disposeCurrentMediaStreamBackend()
 
         val videoConstraints = methodCall.argument<Map<String, Any>>("video")
         val videoSource = videoConstraints
@@ -48,14 +45,7 @@ class MediaBackend(
             "id" to mediaStreamBackend.id,
             "audioTracks" to mediaStream.audioTracks.map { mapOf("id" to it.id()) },
             "videoTracks" to mediaStream.videoTracks.map { mapOf("id" to it.id()) }
-        ).also { currentMediaStreamBackendId = it["id"].toString() }
-    }
-
-    private fun disposeCurrentMediaStreamBackend() {
-        currentMediaStreamBackendId?.let {
-            backendRegistry.get<MediaStreamBackend>(it).dispose()
-            currentMediaStreamBackendId = null
-        }
+        )
     }
 
     @VisibleForTesting
