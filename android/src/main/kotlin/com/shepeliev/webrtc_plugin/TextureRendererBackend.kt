@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.UiThread
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
@@ -32,7 +33,7 @@ class TextureRendererBackend(
 
     override val id: String = newStringId()
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
-        "dispose" to ::dispose
+        "dispose" to ::disposeHandler
     )
 
     val textureId: Long
@@ -53,6 +54,10 @@ class TextureRendererBackend(
             if (Build.MANUFACTURER != "robolectric") {
                 init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
             }
+            registrar.addViewDestroyListener {
+                disposeInternal()
+                true
+            }
             countDownLatch.countDown()
         }
         countDownLatch.await()
@@ -65,24 +70,40 @@ class TextureRendererBackend(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun dispose(methodCall: MethodCall): Nothing? {
+    private fun disposeHandler(methodCall: MethodCall): Nothing? {
         disposeInternal()
         return null
     }
 
     private fun disposeInternal() {
-        if (disposed) return
-        Log.d(TAG, "Disposing $this.")
-        val countDownLatch = CountDownLatch(1)
-        mainThread.post {
-            release()
-            texture.release()
-            textureEntry.release()
-            countDownLatch.countDown()
+        if (Thread.currentThread() == mainThread.looper.thread) {
+            dispose()
+        } else {
+            val countDownLatch = CountDownLatch(1)
+            mainThread.post {
+                dispose()
+                countDownLatch.countDown()
+            }
+            countDownLatch.await()
         }
-        countDownLatch.await()
         backendRegistry.remove(this)
         disposed = true
+    }
+
+    @UiThread
+    private fun dispose() {
+        if (disposed) return
+        Log.d(TAG, "Disposing $this.")
+        removeRendererFromMediaStreams()
+        release()
+        texture.release()
+        textureEntry.release()
+    }
+
+    private fun removeRendererFromMediaStreams() {
+        backendRegistry.all
+            .filterIsInstance(MediaStreamBackend::class.java)
+            .forEach { it.removeTextureRenderer(this) }
     }
 
     protected fun finalize() {
