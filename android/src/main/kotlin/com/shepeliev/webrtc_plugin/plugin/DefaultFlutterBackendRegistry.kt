@@ -11,8 +11,16 @@ interface FlutterBackendRegistry {
 }
 
 class DefaultFlutterBackendRegistry(
-    private val methodChannelRegistry: MethodChannelRegistry
+//    private val methodChannelRegistry: MethodChannelRegistry
 ) : FlutterBackendRegistry {
+    var methodChannelRegistry: MethodChannelRegistry? = null
+        set(value) {
+            if (value != null) {
+                plugins.values.forEach { value.addFlutterBackend(it) }
+            }
+            field = value
+        }
+
     private val plugins = mutableMapOf<String, FlutterBackend>()
 
     override val all: Collection<FlutterBackend>
@@ -20,12 +28,12 @@ class DefaultFlutterBackendRegistry(
 
     override fun add(backend: FlutterBackend) {
         plugins += (backend.id to backend)
-        methodChannelRegistry.addFlutterBackend(backend)
+        methodChannelRegistry!!.addFlutterBackend(backend)
     }
 
     override fun remove(backend: FlutterBackend) {
         check(!backend.isGlobal) { "Global backend can't be removed." }
-        methodChannelRegistry.removePlugin(backend)
+        methodChannelRegistry!!.removePlugin(backend)
         plugins.remove(backend.id) ?: return
     }
 

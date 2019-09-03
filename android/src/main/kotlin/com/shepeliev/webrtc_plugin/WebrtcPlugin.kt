@@ -9,6 +9,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 const val METHOD_CHANNEL_NAME = "flutter.shepeliev.com/webrtc"
 
 object WebrtcPlugin {
+    private val backendRegistry = DefaultFlutterBackendRegistry()
     private lateinit var methodChannelRegistry: DefaultMethodChannelRegistry
 
     @JvmStatic
@@ -16,7 +17,7 @@ object WebrtcPlugin {
         PCF.initialize(registrar.context())
 
         methodChannelRegistry = DefaultMethodChannelRegistry(registrar)
-        val backendRegistry = DefaultFlutterBackendRegistry(methodChannelRegistry)
+        backendRegistry.methodChannelRegistry = methodChannelRegistry
 
         val globalPlugins = listOf(
             TextureRendererBackendFactory(registrar, backendRegistry),
