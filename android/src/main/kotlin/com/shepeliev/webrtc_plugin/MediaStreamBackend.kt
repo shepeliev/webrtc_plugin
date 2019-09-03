@@ -74,10 +74,14 @@ class MediaStreamBackend(
             return null
         }
         val renderer = getTextureRenderer(methodCall)
+        removeTextureRenderer(renderer)
+        return null
+    }
+
+    fun removeTextureRenderer(renderer: TextureRendererBackend) {
         val videoTrack = mediaStream.videoTracks.first()
         videoTrack.removeSink(renderer)
-        Log.d(TAG, "Removed renderer $renderer to $videoTrack")
-        return null
+        Log.d(TAG, "Removed renderer $renderer from $videoTrack")
     }
 
     private fun getTextureRenderer(methodCall: MethodCall): TextureRendererBackend {
