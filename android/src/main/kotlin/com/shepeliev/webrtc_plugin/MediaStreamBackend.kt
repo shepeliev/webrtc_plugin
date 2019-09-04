@@ -28,7 +28,7 @@ class MediaStreamBackend(
 
     override fun dispose() {
         if (disposed) return
-        Log.d(tag, "Disposing MediaStreamBackend.")
+        Log.d(tag, "Disposing $this.")
         removeRenderers()
         videoCapturer?.stopCapture()
         tryDisposeMediaStream()
@@ -61,7 +61,7 @@ class MediaStreamBackend(
     }
 
     private fun addRenderer(methodCall: MethodCall): Nothing? {
-        check(!disposed) { "MediaStreamBackend has been disposed" }
+        check(!disposed) { "$this has been disposed" }
         if (mediaStream.videoTracks.isEmpty()) {
             Log.e(tag, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
             return null
@@ -74,7 +74,7 @@ class MediaStreamBackend(
     }
 
     private fun removeRenderer(methodCall: MethodCall): Nothing? {
-        check(!disposed) { "MediaStreamBackend has been disposed" }
+        check(!disposed) { "$this has been disposed" }
         if (mediaStream.videoTracks.isEmpty()) {
             Log.e(tag, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
             return null
@@ -102,7 +102,7 @@ class MediaStreamBackend(
 
     protected fun finalize() {
         if (!disposed) {
-            Log.w(tag, "MediaStreamBackend has not been disposed properly.")
+            Log.w(tag, "$this has not been disposed properly.")
             dispose()
         }
     }
