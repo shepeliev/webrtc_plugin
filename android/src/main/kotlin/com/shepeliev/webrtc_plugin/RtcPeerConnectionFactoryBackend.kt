@@ -11,8 +11,7 @@ class RtcPeerConnectionFactoryBackend(
     private val registrar: Registrar,
     private val peerConnectionFactory: PeerConnectionFactory,
     private val backendRegistry: FlutterBackendRegistry
-) :
-    GlobalFlutterBackend {
+) : GlobalFlutterBackend {
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "createPeerConnection" to ::createPeerConnection
