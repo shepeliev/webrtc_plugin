@@ -21,8 +21,7 @@ class DefaultFlutterBackendRegistryTest {
     fun setUp() {
         fakePlugin1 = FakeBackend()
         fakePlugin2 = FakeBackend()
-        registry = DefaultFlutterBackendRegistry()
-            .also { it.methodChannelRegistry = methodChannelRegistry }
+        registry = DefaultFlutterBackendRegistry(methodChannelRegistry)
     }
 
     @Test

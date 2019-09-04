@@ -42,7 +42,7 @@ class TextureRendererBackendTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.surfaceTexture()) doReturn texture
 
-        rendererBackend = TextureRendererBackend(registrar, backendRegistry)
+        rendererBackend = TextureRendererBackend(registrar, mock(), backendRegistry)
     }
 
     @Test
