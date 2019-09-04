@@ -18,5 +18,7 @@ interface FlutterBackend {
 
     val methodHandlers: Map<String, MethodHandler<*>>
 
-    fun dispose()
+    fun dispose() {
+        throw UnsupportedOperationException()
+    }
 }

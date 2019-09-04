@@ -4,7 +4,6 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.*
-import com.shepeliev.webrtc_plugin.webrtc.eglBase
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -15,6 +14,7 @@ import org.webrtc.VideoFrame
 
 class TextureRendererBackend(
     registrar: Registrar,
+    private val eglBase: EglBase,
     private val backendRegistry: FlutterBackendRegistry
 ) : EglRenderer(""), FlutterBackend {
 
