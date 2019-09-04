@@ -7,8 +7,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.webrtc.*
 
-private val TAG = RtcPeerConnectionFactoryBackend::class.java.simpleName
-
 class RtcPeerConnectionFactoryBackend(
     private val registrar: Registrar,
     private val peerConnectionFactory: PeerConnectionFactory,
@@ -101,7 +99,7 @@ class RtcPeerConnectionFactoryBackend(
         }
 
         override fun onDataChannel(dataChannel: DataChannel) {
-            Log.d(TAG, "onDataChannel($dataChannel)")
+            Log.d(tag, "onDataChannel($dataChannel)")
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {

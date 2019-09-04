@@ -8,8 +8,6 @@ import io.flutter.plugin.common.MethodCall
 import org.webrtc.*
 import java.util.concurrent.CountDownLatch
 
-private val TAG = RtcPeerConnectionBackend::class.java.simpleName
-
 class RtcPeerConnectionBackend(
     override val id: BackendId,
     private val peerConnection: PeerConnection,
@@ -39,14 +37,14 @@ class RtcPeerConnectionBackend(
         val mediaStreamId = methodCall.argument<String>("id") ?: error("'id' is required.")
         val mediaStreamBackend = backendRegistry.get<MediaStreamBackend>(mediaStreamId)
         val mediaStream = mediaStreamBackend.mediaStream
-        Log.d(TAG, "Adding media stream $mediaStream.")
+        Log.d(tag, "Adding media stream $mediaStream.")
         return peerConnection.addStream(mediaStream)
     }
 
     private fun createOffer(methodCall: MethodCall): Map<String, Any> {
         check(!disposed) { "PeerConnection is disposed!" }
         val constraints = getMediaConstraints(methodCall)
-        Log.d(TAG, "Creating an offer. Constraints: $constraints.")
+        Log.d(tag, "Creating an offer. Constraints: $constraints.")
         val createSdbObserver = CreateSdbObserver()
         peerConnection.createOffer(createSdbObserver, constraints)
         return createSdbObserver.sessionDescription.toMap()
@@ -55,7 +53,7 @@ class RtcPeerConnectionBackend(
     private fun createAnswer(methodCall: MethodCall): Map<String, Any> {
         check(!disposed) { "PeerConnection is disposed!" }
         val constraints = getMediaConstraints(methodCall)
-        Log.d(TAG, "Creating an answer. Constrains: $constraints")
+        Log.d(tag, "Creating an answer. Constrains: $constraints")
         val createSdbObserver = CreateSdbObserver()
         peerConnection.createAnswer(createSdbObserver, constraints)
         return createSdbObserver.sessionDescription.toMap()
@@ -85,7 +83,7 @@ class RtcPeerConnectionBackend(
     private fun setLocalDescription(methodCall: MethodCall): Nothing? {
         check(!disposed) { "PeerConnection is disposed!" }
         val sdp = getSessionDescription(methodCall)
-        Log.d(TAG, "Setting local description: $sdp.")
+        Log.d(tag, "Setting local description: $sdp.")
         val setSdpObserver = SetSdbObserver()
         peerConnection.setLocalDescription(setSdpObserver, sdp)
         setSdpObserver.await()
@@ -95,7 +93,7 @@ class RtcPeerConnectionBackend(
     private fun setRemoteDescription(methodCall: MethodCall): Nothing? {
         check(!disposed) { "PeerConnection is disposed!" }
         val sdp = getSessionDescription(methodCall)
-        Log.d(TAG, "Setting remote description: $sdp.")
+        Log.d(tag, "Setting remote description: $sdp.")
         val setSdpObserver = SetSdbObserver()
         peerConnection.setRemoteDescription(setSdpObserver, sdp)
         setSdpObserver.await()
@@ -118,7 +116,7 @@ class RtcPeerConnectionBackend(
 
     private fun addIceCandidate(methodCall: MethodCall): Boolean {
         val iceCandidate = getIceCandidate(methodCall)
-        Log.d(TAG, "Adding ICE candidate: $iceCandidate.")
+        Log.d(tag, "Adding ICE candidate: $iceCandidate.")
         return peerConnection.addIceCandidate(iceCandidate)
     }
 
@@ -139,7 +137,7 @@ class RtcPeerConnectionBackend(
         check(!disposed) { "PeerConnection is disposed!" }
         val iceCandidates = (methodCall.arguments as List<*>)
             .map { getIceCandidate(MethodCall(null, it)) }
-        Log.d(TAG, "Removing ICE candidates: $iceCandidates")
+        Log.d(tag, "Removing ICE candidates: $iceCandidates")
         return peerConnection.removeIceCandidates(iceCandidates.toTypedArray())
     }
 
@@ -151,7 +149,7 @@ class RtcPeerConnectionBackend(
 
     override fun dispose() {
         if (disposed) return
-        Log.d(TAG, "Disposing.")
+        Log.d(tag, "Disposing.")
         peerConnection.dispose()
         backendRegistry.remove(this)
         uiThread { eventChannel.setStreamHandler(null) }
@@ -162,7 +160,7 @@ class RtcPeerConnectionBackend(
 
     protected fun finalize() {
         if (disposed) return
-        Log.w(TAG, "$this has not been disposed properly!")
+        Log.w(tag, "$this has not been disposed properly!")
         dispose()
     }
 }

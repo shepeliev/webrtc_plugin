@@ -13,8 +13,6 @@ import org.webrtc.EglRenderer
 import org.webrtc.GlRectDrawer
 import org.webrtc.VideoFrame
 
-private val TAG = TextureRendererBackend::class.java.simpleName
-
 class TextureRendererBackend(
     registrar: Registrar,
     private val backendRegistry: FlutterBackendRegistry
@@ -65,7 +63,7 @@ class TextureRendererBackend(
 
     override fun dispose() {
         if (disposed) return
-        Log.d(TAG, "Disposing $this.")
+        Log.d(tag, "Disposing $this.")
         removeRendererFromMediaStreams()
         release()
         backendRegistry.remove(this)
@@ -84,7 +82,7 @@ class TextureRendererBackend(
 
     protected fun finalize() {
         if (!disposed) {
-            Log.w(TAG, "$this has not been disposed properly.")
+            Log.w(tag, "$this has not been disposed properly.")
             dispose()
         }
     }

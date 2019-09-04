@@ -7,8 +7,6 @@ import org.webrtc.CameraVideoCapturer
 import org.webrtc.MediaStream
 import org.webrtc.VideoSink
 
-private val TAG = MediaStreamBackend::class.java.simpleName
-
 class MediaStreamBackend(
     val mediaStream: MediaStream,
     private val videoCapturer: CameraVideoCapturer?,
@@ -30,7 +28,7 @@ class MediaStreamBackend(
 
     override fun dispose() {
         if (disposed) return
-        Log.d(TAG, "Disposing MediaStreamBackend.")
+        Log.d(tag, "Disposing MediaStreamBackend.")
         removeRenderers()
         videoCapturer?.stopCapture()
         mediaStream.dispose()
@@ -42,7 +40,7 @@ class MediaStreamBackend(
         val renderers = backendRegistry.all.filterIsInstance<VideoSink>()
         mediaStream.videoTracks.forEach { videoTrack ->
             renderers.forEach {
-                Log.d(TAG, "Remove renderer $it from $videoTrack")
+                Log.d(tag, "Remove renderer $it from $videoTrack")
                 videoTrack.removeSink(it)
             }
         }
@@ -57,20 +55,20 @@ class MediaStreamBackend(
     private fun addRenderer(methodCall: MethodCall): Nothing? {
         check(!disposed) { "MediaStreamBackend has been disposed" }
         if (mediaStream.videoTracks.isEmpty()) {
-            Log.e(TAG, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
+            Log.e(tag, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
             return null
         }
         val renderer = getTextureRenderer(methodCall)
         val videoTrack = mediaStream.videoTracks.first()
         videoTrack.addSink(renderer)
-        Log.d(TAG, "Added renderer $renderer to $videoTrack")
+        Log.d(tag, "Added renderer $renderer to $videoTrack")
         return null
     }
 
     private fun removeRenderer(methodCall: MethodCall): Nothing? {
         check(!disposed) { "MediaStreamBackend has been disposed" }
         if (mediaStream.videoTracks.isEmpty()) {
-            Log.e(TAG, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
+            Log.e(tag, "MediaStream{id: ${mediaStream.id}} doesn't contain video track.")
             return null
         }
         val renderer = getTextureRenderer(methodCall)
@@ -81,7 +79,7 @@ class MediaStreamBackend(
     fun removeTextureRenderer(renderer: TextureRendererBackend) {
         val videoTrack = mediaStream.videoTracks.first()
         videoTrack.removeSink(renderer)
-        Log.d(TAG, "Removed renderer $renderer from $videoTrack")
+        Log.d(tag, "Removed renderer $renderer from $videoTrack")
     }
 
     private fun getTextureRenderer(methodCall: MethodCall): TextureRendererBackend {
@@ -98,7 +96,7 @@ class MediaStreamBackend(
 
     protected fun finalize() {
         if (!disposed) {
-            Log.w(TAG, "MediaStreamBackend has not been disposed properly.")
+            Log.w(tag, "MediaStreamBackend has not been disposed properly.")
             dispose()
         }
     }
