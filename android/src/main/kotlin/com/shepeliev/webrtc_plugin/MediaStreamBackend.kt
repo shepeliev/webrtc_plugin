@@ -31,9 +31,17 @@ class MediaStreamBackend(
         Log.d(tag, "Disposing MediaStreamBackend.")
         removeRenderers()
         videoCapturer?.stopCapture()
-        mediaStream.dispose()
+        tryDisposeMediaStream()
         backendRegistry.remove(this)
         disposed = true
+    }
+
+    private fun tryDisposeMediaStream() {
+        try {
+            mediaStream.dispose()
+        } catch (e: IllegalStateException) {
+            // already disposed
+        }
     }
 
     private fun removeRenderers() {
@@ -77,9 +85,7 @@ class MediaStreamBackend(
     }
 
     fun removeTextureRenderer(renderer: TextureRendererBackend) {
-        val videoTrack = mediaStream.videoTracks.first()
-        videoTrack.removeSink(renderer)
-        Log.d(tag, "Removed renderer $renderer from $videoTrack")
+        mediaStream.videoTracks.forEach { it.removeSink(renderer) }
     }
 
     private fun getTextureRenderer(methodCall: MethodCall): TextureRendererBackend {

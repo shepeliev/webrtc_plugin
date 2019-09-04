@@ -43,10 +43,6 @@ class TextureRendererBackend(
                 init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
             }
         }.await()
-        registrar.addViewDestroyListener {
-            dispose()
-            true
-        }
         backendRegistry.add(this)
     }
 

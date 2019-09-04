@@ -23,7 +23,7 @@ class RtcPeerConnectionBackend(
         "setRemoteDescription" to ::setRemoteDescription,
         "addIceCandidate" to ::addIceCandidate,
         "removeIceCandidates" to ::removeIceCandidates,
-        "disposeHandler" to ::disposeHandler
+        "dispose" to ::disposeHandler
     )
 
     private var disposed = false
