@@ -28,7 +28,7 @@ class MediaStreamBackend(
         backendRegistry.add(this)
     }
 
-    fun dispose() {
+    override fun dispose() {
         if (disposed) return
         Log.d(TAG, "Disposing MediaStreamBackend.")
         removeRenderers()

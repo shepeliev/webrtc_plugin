@@ -64,6 +64,10 @@ class RtcPeerConnectionFactoryBackend(
             .createIceServer()
     }
 
+    override fun dispose() {
+        Log.d(tag, "Disposing $this.")
+    }
+
     private inner class PeerConnectionObserver(id: String, eventChannel: EventChannel) :
         PeerConnection.Observer {
 

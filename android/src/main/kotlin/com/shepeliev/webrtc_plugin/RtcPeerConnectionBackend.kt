@@ -25,7 +25,7 @@ class RtcPeerConnectionBackend(
         "setRemoteDescription" to ::setRemoteDescription,
         "addIceCandidate" to ::addIceCandidate,
         "removeIceCandidates" to ::removeIceCandidates,
-        "dispose" to ::dispose
+        "disposeHandler" to ::disposeHandler
     )
 
     private var disposed = false
@@ -144,12 +144,12 @@ class RtcPeerConnectionBackend(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun dispose(methodCall: MethodCall): Nothing? {
-        disposeInternal()
+    private fun disposeHandler(methodCall: MethodCall): Nothing? {
+        dispose()
         return null
     }
 
-    private fun disposeInternal() {
+    override fun dispose() {
         if (disposed) return
         Log.d(TAG, "Disposing.")
         peerConnection.dispose()
@@ -163,7 +163,7 @@ class RtcPeerConnectionBackend(
     protected fun finalize() {
         if (disposed) return
         Log.w(TAG, "$this has not been disposed properly!")
-        disposeInternal()
+        dispose()
     }
 }
 

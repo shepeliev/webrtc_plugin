@@ -1,5 +1,6 @@
 package com.shepeliev.webrtc_plugin
 
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
@@ -54,6 +55,10 @@ class MediaBackend(
         return audioEnabled
             .takeIf { it }
             ?.let { peerConnectionFactory.createAudioSource(MediaConstraints()) }
+    }
+
+    override fun dispose() {
+        Log.d(tag, "Disposing $this.")
     }
 
     class MediaStreamBackendFactory(

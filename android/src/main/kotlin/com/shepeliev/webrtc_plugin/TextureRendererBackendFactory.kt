@@ -1,5 +1,6 @@
 package com.shepeliev.webrtc_plugin
 
+import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
@@ -19,4 +20,8 @@ class TextureRendererBackendFactory(
     private fun createTextureRenderer(methodCall: MethodCall): Map<String, Any> =
         TextureRendererBackend(registrar, backendRegistry)
             .let { mapOf("id" to it.id, "textureId" to it.textureId) }
+
+    override fun dispose() {
+        Log.d(tag, "Disposing $this")
+    }
 }

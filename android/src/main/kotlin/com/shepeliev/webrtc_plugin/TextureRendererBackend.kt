@@ -63,7 +63,7 @@ class TextureRendererBackend(
         return null
     }
 
-    private fun dispose() {
+    override fun dispose() {
         if (disposed) return
         Log.d(TAG, "Disposing $this.")
         removeRendererFromMediaStreams()
