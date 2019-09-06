@@ -93,9 +93,8 @@ void main() {
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
 
-    final result = await peerConnection.removeMediaStream(mediaStream);
+    await peerConnection.removeMediaStream(mediaStream);
 
-    expect(result, isTrue);
     expect(methodCalls.toString(),
         '[MethodCall(removeMediaStream, {id: $mediaStreamId, videoTracks: [], audioTracks: []})]');
   });
