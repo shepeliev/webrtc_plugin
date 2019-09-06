@@ -1,26 +1,17 @@
 package com.shepeliev.webrtc_plugin
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
-import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
-import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.newStringId
+import com.shepeliev.webrtc_plugin.plugin.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.webrtc.*
-import java.util.concurrent.CountDownLatch
-
-private val TAG = RtcPeerConnectionFactoryBackend::class.java.simpleName
 
 class RtcPeerConnectionFactoryBackend(
     private val registrar: Registrar,
     private val peerConnectionFactory: PeerConnectionFactory,
     private val backendRegistry: FlutterBackendRegistry
-) :
-    GlobalFlutterBackend {
+) : GlobalFlutterBackend {
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "createPeerConnection" to ::createPeerConnection
@@ -70,10 +61,13 @@ class RtcPeerConnectionFactoryBackend(
             .createIceServer()
     }
 
+    override fun dispose() {
+        Log.d(tag, "Disposing $this.")
+    }
+
     private inner class PeerConnectionObserver(id: String, eventChannel: EventChannel) :
         PeerConnection.Observer {
 
-        private val uiThread = Handler(Looper.getMainLooper())
         private val tag = "${PeerConnectionObserver::class.java.simpleName}::$id"
         private var eventSink: EventChannel.EventSink? = null
 
@@ -88,17 +82,12 @@ class RtcPeerConnectionFactoryBackend(
         }
 
         init {
-            val countDownLatch = CountDownLatch(1)
-            uiThread.post {
-                eventChannel.setStreamHandler(streamHandler)
-                countDownLatch.countDown()
-            }
-            countDownLatch.await()
+            uiThread { eventChannel.setStreamHandler(streamHandler) }.await()
         }
 
         override fun onIceCandidate(iceCandidate: IceCandidate) {
             Log.d(tag, "onIceCandidate($iceCandidate)")
-            uiThread.post {
+            uiThread {
                 eventSink?.success(
                     mapOf(
                         "type" to "iceCandidate",
@@ -109,7 +98,7 @@ class RtcPeerConnectionFactoryBackend(
         }
 
         override fun onDataChannel(dataChannel: DataChannel) {
-            Log.d(TAG, "onDataChannel($dataChannel)")
+            Log.d(tag, "onDataChannel($dataChannel)")
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {
@@ -118,7 +107,7 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceConnectionChange(newState: PeerConnection.IceConnectionState) {
             Log.d(tag, "onIceConnectionChange($newState)")
-            uiThread.post {
+            uiThread {
                 eventSink?.success(
                     mapOf(
                         "type" to "iceConnectionStateChange",
@@ -135,7 +124,7 @@ class RtcPeerConnectionFactoryBackend(
         override fun onAddStream(stream: MediaStream) {
             Log.d(tag, "onAddStream($stream)")
             val mediaStreamBackend = MediaStreamBackend(stream, null, backendRegistry)
-            uiThread.post {
+            uiThread {
                 eventSink?.success(
                     mapOf(
                         "type" to "addMediaStream",
@@ -151,7 +140,7 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceCandidatesRemoved(iceCandidates: Array<out IceCandidate>) {
             Log.d(tag, "onIceCandidatesRemoved(${iceCandidates.contentToString()}")
-            uiThread.post {
+            uiThread {
                 eventSink?.success(mapOf(
                     "type" to "removeIceCandidates",
                     "iceCandidates" to iceCandidates.map { it.toMap() }
@@ -163,8 +152,8 @@ class RtcPeerConnectionFactoryBackend(
             Log.d(tag, "onRemoveStream($stream)")
             val mediaStreamBackend = backendRegistry.all
                 .filterIsInstance(MediaStreamBackend::class.java)
-                .first { it.mediaStream.id == stream.id }
-            uiThread.post {
+                .first { it.mediaStream == stream }
+            uiThread {
                 eventSink?.success(
                     mapOf(
                         "type" to "addMediaStream",

@@ -1,19 +1,12 @@
 package com.shepeliev.webrtc_plugin
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import com.shepeliev.webrtc_plugin.plugin.BackendId
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
-import com.shepeliev.webrtc_plugin.plugin.MethodHandler
+import com.shepeliev.webrtc_plugin.plugin.*
 import com.shepeliev.webrtc_plugin.webrtc.mediaConstraints
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import org.webrtc.*
 import java.util.concurrent.CountDownLatch
-
-private val TAG = RtcPeerConnectionBackend::class.java.simpleName
 
 class RtcPeerConnectionBackend(
     override val id: BackendId,
@@ -24,16 +17,16 @@ class RtcPeerConnectionBackend(
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "addMediaStream" to ::addMediaStream,
+        "removeMediaStream" to ::removeMediaStream,
         "createOffer" to ::createOffer,
         "createAnswer" to ::createAnswer,
         "setLocalDescription" to ::setLocalDescription,
         "setRemoteDescription" to ::setRemoteDescription,
         "addIceCandidate" to ::addIceCandidate,
         "removeIceCandidates" to ::removeIceCandidates,
-        "dispose" to ::dispose
+        "dispose" to ::disposeHandler
     )
 
-    private val uiThread = Handler(Looper.getMainLooper())
     private var disposed = false
 
     init {
@@ -45,14 +38,24 @@ class RtcPeerConnectionBackend(
         val mediaStreamId = methodCall.argument<String>("id") ?: error("'id' is required.")
         val mediaStreamBackend = backendRegistry.get<MediaStreamBackend>(mediaStreamId)
         val mediaStream = mediaStreamBackend.mediaStream
-        Log.d(TAG, "Adding media stream $mediaStream.")
+        Log.d(tag, "Adding media stream $mediaStream.")
         return peerConnection.addStream(mediaStream)
     }
+
+    private fun removeMediaStream(methodCall: MethodCall): Nothing? {
+        check(!disposed) { "PeerConnection is disposed!" }
+        val mediaStreamId = methodCall.argument<String>("id") ?: error("'id' is required.")
+        val mediaStreamBackend = backendRegistry.get<MediaStreamBackend>(mediaStreamId)
+        val mediaStream = mediaStreamBackend.mediaStream
+        peerConnection.removeStream(mediaStream)
+        return null
+    }
+
 
     private fun createOffer(methodCall: MethodCall): Map<String, Any> {
         check(!disposed) { "PeerConnection is disposed!" }
         val constraints = getMediaConstraints(methodCall)
-        Log.d(TAG, "Creating an offer. Constraints: $constraints.")
+        Log.d(tag, "Creating an offer. Constraints: $constraints.")
         val createSdbObserver = CreateSdbObserver()
         peerConnection.createOffer(createSdbObserver, constraints)
         return createSdbObserver.sessionDescription.toMap()
@@ -61,7 +64,7 @@ class RtcPeerConnectionBackend(
     private fun createAnswer(methodCall: MethodCall): Map<String, Any> {
         check(!disposed) { "PeerConnection is disposed!" }
         val constraints = getMediaConstraints(methodCall)
-        Log.d(TAG, "Creating an answer. Constrains: $constraints")
+        Log.d(tag, "Creating an answer. Constrains: $constraints")
         val createSdbObserver = CreateSdbObserver()
         peerConnection.createAnswer(createSdbObserver, constraints)
         return createSdbObserver.sessionDescription.toMap()
@@ -91,7 +94,7 @@ class RtcPeerConnectionBackend(
     private fun setLocalDescription(methodCall: MethodCall): Nothing? {
         check(!disposed) { "PeerConnection is disposed!" }
         val sdp = getSessionDescription(methodCall)
-        Log.d(TAG, "Setting local description: $sdp.")
+        Log.d(tag, "Setting local description: $sdp.")
         val setSdpObserver = SetSdbObserver()
         peerConnection.setLocalDescription(setSdpObserver, sdp)
         setSdpObserver.await()
@@ -101,7 +104,7 @@ class RtcPeerConnectionBackend(
     private fun setRemoteDescription(methodCall: MethodCall): Nothing? {
         check(!disposed) { "PeerConnection is disposed!" }
         val sdp = getSessionDescription(methodCall)
-        Log.d(TAG, "Setting remote description: $sdp.")
+        Log.d(tag, "Setting remote description: $sdp.")
         val setSdpObserver = SetSdbObserver()
         peerConnection.setRemoteDescription(setSdpObserver, sdp)
         setSdpObserver.await()
@@ -124,7 +127,7 @@ class RtcPeerConnectionBackend(
 
     private fun addIceCandidate(methodCall: MethodCall): Boolean {
         val iceCandidate = getIceCandidate(methodCall)
-        Log.d(TAG, "Adding ICE candidate: $iceCandidate.")
+        Log.d(tag, "Adding ICE candidate: $iceCandidate.")
         return peerConnection.addIceCandidate(iceCandidate)
     }
 
@@ -145,22 +148,22 @@ class RtcPeerConnectionBackend(
         check(!disposed) { "PeerConnection is disposed!" }
         val iceCandidates = (methodCall.arguments as List<*>)
             .map { getIceCandidate(MethodCall(null, it)) }
-        Log.d(TAG, "Removing ICE candidates: $iceCandidates")
+        Log.d(tag, "Removing ICE candidates: $iceCandidates")
         return peerConnection.removeIceCandidates(iceCandidates.toTypedArray())
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun dispose(methodCall: MethodCall): Nothing? {
-        disposeInternal()
+    private fun disposeHandler(methodCall: MethodCall): Nothing? {
+        dispose()
         return null
     }
 
-    private fun disposeInternal() {
+    override fun dispose() {
         if (disposed) return
-        Log.d(TAG, "Disposing.")
+        Log.d(tag, "Disposing.")
         peerConnection.dispose()
         backendRegistry.remove(this)
-        uiThread.post { eventChannel.setStreamHandler(null) }
+        uiThread { eventChannel.setStreamHandler(null) }
         disposed = true
     }
 
@@ -168,8 +171,8 @@ class RtcPeerConnectionBackend(
 
     protected fun finalize() {
         if (disposed) return
-        Log.w(TAG, "$this has not been disposed properly!")
-        disposeInternal()
+        Log.w(tag, "$this has not been disposed properly!")
+        dispose()
     }
 }
 

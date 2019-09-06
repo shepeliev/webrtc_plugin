@@ -63,7 +63,7 @@ class DefaultFlutterBackendRegistryTest {
 }
 
 private class FakeBackend(
-    override val id: BackendId = newId(),
+    override val id: BackendId = newStringId(),
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf()
 ) : FlutterBackend
 

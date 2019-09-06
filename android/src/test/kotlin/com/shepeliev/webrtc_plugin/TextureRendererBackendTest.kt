@@ -42,7 +42,7 @@ class TextureRendererBackendTest {
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.surfaceTexture()) doReturn texture
 
-        rendererBackend = TextureRendererBackend(registrar, backendRegistry)
+        rendererBackend = TextureRendererBackend(registrar, mock(), backendRegistry)
     }
 
     @Test
@@ -76,10 +76,13 @@ class TextureRendererBackendTest {
 
     @Test
     fun dispose() {
+        val mediaStreamBackend = mock<MediaStreamBackend>()
+        whenever(backendRegistry.all) doReturn listOf(mediaStreamBackend)
         val handler = rendererBackend.methodHandlers.getValue("dispose")
 
         handler(MethodCall("dispose", null))
 
+        verify(mediaStreamBackend).removeTextureRenderer(rendererBackend)
         verify(texture).release()
         verify(textureEntry).release()
         verify(backendRegistry).remove(rendererBackend)

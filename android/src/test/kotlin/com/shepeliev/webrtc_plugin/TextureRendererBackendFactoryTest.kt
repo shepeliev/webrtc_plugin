@@ -38,7 +38,7 @@ class TextureRendererBackendFactoryTest {
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
 
-        backendFactory = TextureRendererBackendFactory(registrar, backendRegistry)
+        backendFactory = TextureRendererBackendFactory(registrar, mock(), backendRegistry)
     }
 
     @Test

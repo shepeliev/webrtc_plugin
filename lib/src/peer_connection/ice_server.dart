@@ -24,13 +24,13 @@ class IceServer {
       identical(this, other) ||
       other is IceServer &&
           runtimeType == other.runtimeType &&
-          urls == other.urls &&
+          listEquals(urls, other.urls) &&
           username == other.username &&
           password == other.password &&
           tlsCertPolicy == other.tlsCertPolicy &&
           hostname == other.hostname &&
-          tlsAlpnProtocols == other.tlsAlpnProtocols &&
-          tlsEllipticCurves == other.tlsEllipticCurves;
+          listEquals(tlsAlpnProtocols, other.tlsAlpnProtocols) &&
+          listEquals(tlsEllipticCurves, other.tlsEllipticCurves);
 
   @override
   int get hashCode =>

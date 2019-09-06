@@ -13,6 +13,7 @@ interface FlutterBackendRegistry {
 class DefaultFlutterBackendRegistry(
     private val methodChannelRegistry: MethodChannelRegistry
 ) : FlutterBackendRegistry {
+
     private val plugins = mutableMapOf<String, FlutterBackend>()
 
     override val all: Collection<FlutterBackend>

@@ -5,11 +5,12 @@ import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.newStringId
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
+import org.webrtc.EglBase
 import org.webrtc.SurfaceTextureHelper
 
 private val TAG = DefaultVideoCapturerFactory::class.java.simpleName
 
-class DefaultVideoCapturerFactory(private val context: Context) :
+class DefaultVideoCapturerFactory(private val context: Context, eglBase: EglBase) :
     VideoCapturerFactory {
     private val surfaceTextureHelper =
         SurfaceTextureHelper.create(

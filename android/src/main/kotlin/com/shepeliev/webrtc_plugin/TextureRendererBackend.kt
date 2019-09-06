@@ -2,14 +2,8 @@ package com.shepeliev.webrtc_plugin
 
 import android.graphics.SurfaceTexture
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackend
-import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
-import com.shepeliev.webrtc_plugin.plugin.MethodHandler
-import com.shepeliev.webrtc_plugin.plugin.newStringId
-import com.shepeliev.webrtc_plugin.webrtc.eglBase
+import com.shepeliev.webrtc_plugin.plugin.*
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -17,22 +11,19 @@ import org.webrtc.EglBase
 import org.webrtc.EglRenderer
 import org.webrtc.GlRectDrawer
 import org.webrtc.VideoFrame
-import java.util.concurrent.CountDownLatch
-
-private val TAG = TextureRendererBackend::class.java.simpleName
 
 class TextureRendererBackend(
     registrar: Registrar,
+    private val eglBase: EglBase,
     private val backendRegistry: FlutterBackendRegistry
 ) : EglRenderer(""), FlutterBackend {
 
-    private val mainThread = Handler(Looper.getMainLooper())
     private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
     private lateinit var texture: SurfaceTexture
 
     override val id: String = newStringId()
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
-        "dispose" to ::dispose
+        "dispose" to ::disposeHandler
     )
 
     val textureId: Long
@@ -41,9 +32,7 @@ class TextureRendererBackend(
     private var disposed = false
 
     init {
-        val countDownLatch = CountDownLatch(1)
-
-        mainThread.post {
+        uiThread {
             val textures = registrar.textures()
             textureEntry = textures.createSurfaceTexture()
             texture = textureEntry.surfaceTexture()
@@ -53,9 +42,7 @@ class TextureRendererBackend(
             if (Build.MANUFACTURER != "robolectric") {
                 init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
             }
-            countDownLatch.countDown()
-        }
-        countDownLatch.await()
+        }.await()
         backendRegistry.add(this)
     }
 
@@ -65,30 +52,34 @@ class TextureRendererBackend(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun dispose(methodCall: MethodCall): Nothing? {
-        disposeInternal()
+    private fun disposeHandler(methodCall: MethodCall): Nothing? {
+        dispose()
         return null
     }
 
-    private fun disposeInternal() {
+    override fun dispose() {
         if (disposed) return
-        Log.d(TAG, "Disposing $this.")
-        val countDownLatch = CountDownLatch(1)
-        mainThread.post {
-            release()
-            texture.release()
-            textureEntry.release()
-            countDownLatch.countDown()
-        }
-        countDownLatch.await()
+        Log.d(tag, "Disposing $this.")
+        removeRendererFromMediaStreams()
+        release()
         backendRegistry.remove(this)
         disposed = true
+        uiThread {
+            texture.release()
+            textureEntry.release()
+        }
+    }
+
+    private fun removeRendererFromMediaStreams() {
+        backendRegistry.all
+            .filterIsInstance(MediaStreamBackend::class.java)
+            .forEach { it.removeTextureRenderer(this) }
     }
 
     protected fun finalize() {
         if (!disposed) {
-            Log.w(TAG, "$this has not been disposed properly.")
-            disposeInternal()
+            Log.w(tag, "$this has not been disposed properly.")
+            dispose()
         }
     }
 }
