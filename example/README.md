@@ -1,16 +1,16 @@
-# webrtc_plugin_example
-
-Demonstrates how to use the webrtc_plugin plugin.
+# Flutter AppRTC demo
+Demonstrates how to use the WebRTC plugin. The application is somewhat a port of native Android
+[AppRTC demo](https://webrtc.googlesource.com/src/+/master/examples/androidapp/README). It can works
+with [https://appr.tc](https://appr.tc) out of the box.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Clone the project
+[https://github.com/shepeliev/webrtc_plugin](https://github.com/shepeliev/webrtc_plugin) 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cd webrtc_plugin
+flutter pub get
+cd example
+flutter run
+```
