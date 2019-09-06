@@ -17,6 +17,7 @@ class RtcPeerConnectionBackend(
 
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "addMediaStream" to ::addMediaStream,
+        "removeMediaStream" to ::removeMediaStream,
         "createOffer" to ::createOffer,
         "createAnswer" to ::createAnswer,
         "setLocalDescription" to ::setLocalDescription,
@@ -40,6 +41,16 @@ class RtcPeerConnectionBackend(
         Log.d(tag, "Adding media stream $mediaStream.")
         return peerConnection.addStream(mediaStream)
     }
+
+    private fun removeMediaStream(methodCall: MethodCall): Nothing? {
+        check(!disposed) { "PeerConnection is disposed!" }
+        val mediaStreamId = methodCall.argument<String>("id") ?: error("'id' is required.")
+        val mediaStreamBackend = backendRegistry.get<MediaStreamBackend>(mediaStreamId)
+        val mediaStream = mediaStreamBackend.mediaStream
+        peerConnection.removeStream(mediaStream)
+        return null
+    }
+
 
     private fun createOffer(methodCall: MethodCall): Map<String, Any> {
         check(!disposed) { "PeerConnection is disposed!" }
