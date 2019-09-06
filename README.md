@@ -1,14 +1,5 @@
-# webrtc_plugin
+# WebRTC plugin for Flutter [![Build Status](https://travis-ci.org/shepeliev/webrtc_plugin.svg?branch=master)](https://travis-ci.org/shepeliev/webrtc_plugin)
 
-A new flutter plugin project.
+[WebRTC](http://webrtc.org) is an open project that provides browsers and mobile applications with Real-Time Communications (RTC) capabilities via simple APIs. This plugin should help to integrate Flutter Android/iOS apps with WebRTC.
 
-## Getting Started
-
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Currently, it's my pet project for learning Flutter and it's not production ready.
