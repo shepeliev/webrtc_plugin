@@ -78,6 +78,9 @@ class RtcPeerConnection {
   Future<bool> addStream(MediaStream stream) async =>
       await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
 
+  Future<bool> removeMediaStream(MediaStream stream) async =>
+      await tryInvokeMethod(_channel, 'removeMediaStream', stream.toMap());
+
   Future<SessionDescription> createOffer(SdpConstraints constraints) async {
     final resultMap =
         await tryInvokeMapMethod(_channel, 'createOffer', constraints.toMap());

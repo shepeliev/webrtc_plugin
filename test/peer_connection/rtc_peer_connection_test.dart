@@ -87,6 +87,19 @@ void main() {
         '[MethodCall(addMediaStream, {id: $mediaStreamId, videoTracks: [], audioTracks: []})]');
   });
 
+  test('removeMediaStream', () async {
+    mockMethodHandler = (methodCall) async => true;
+    final peerConnection = RtcPeerConnection(id);
+    final mediaStreamId = randomString();
+    final mediaStream = MediaStream(mediaStreamId);
+
+    final result = await peerConnection.removeMediaStream(mediaStream);
+
+    expect(result, isTrue);
+    expect(methodCalls.toString(),
+        '[MethodCall(removeMediaStream, {id: $mediaStreamId, videoTracks: [], audioTracks: []})]');
+  });
+
   test('createOffer', () async {
     mockMethodHandler =
         (methodCall) async => {'type': 'OFFER', 'description': 'description'};
