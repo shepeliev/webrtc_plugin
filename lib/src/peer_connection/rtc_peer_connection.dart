@@ -75,7 +75,7 @@ class RtcPeerConnection {
     return RtcPeerConnection(resultMap['id']);
   }
 
-  Future<bool> addStream(MediaStream stream) async =>
+  Future<bool> addMediaStream(MediaStream stream) async =>
       await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
 
   Future<bool> removeMediaStream(MediaStream stream) async =>

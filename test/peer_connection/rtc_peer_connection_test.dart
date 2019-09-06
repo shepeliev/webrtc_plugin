@@ -80,7 +80,7 @@ void main() {
     final mediaStreamId = randomString();
     final mediaStream = MediaStream(mediaStreamId);
 
-    final result = await peerConnection.addStream(mediaStream);
+    final result = await peerConnection.addMediaStream(mediaStream);
 
     expect(result, isTrue);
     expect(methodCalls.toString(),
