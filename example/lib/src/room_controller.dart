@@ -189,6 +189,7 @@ class RoomController {
 
   Future leaveRoom() async {
     debugPrint('Leaving room: "$roomName"');
+    _signaling?.sendByeSignal();
     await api.leaveRoom(_roomParams);
     _roomParams = null;
     _cancelSubscriptions();
@@ -198,7 +199,6 @@ class RoomController {
   }
 
   void _disposeSignaling() {
-    _signaling?.sendByeSignal();
     _signaling?.dispose();
     _signaling = null;
   }
