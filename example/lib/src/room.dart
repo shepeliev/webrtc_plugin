@@ -15,19 +15,24 @@ class Room extends StatefulWidget {
 
 class _RoomState extends State<Room> {
   final RoomController _roomController;
+  final _subscriptions = <StreamSubscription>[];
 
-  StreamSubscription _localMediaStreamSubscription;
   MediaStream _localMediaStream;
+  MediaStream _remoteMediaStream;
 
   _RoomState(String roomName) : _roomController = RoomController(roomName);
 
   @override
   void initState() {
     super.initState();
-    _localMediaStreamSubscription =
-        _roomController.localMediaStream.listen((mediaStream) => setState(() {
-              _localMediaStream = mediaStream;
-            }));
+    _subscriptions.addAll([
+      _roomController.localMediaStream.listen((stream) => setState(() {
+            _localMediaStream = stream;
+          })),
+      _roomController.remoteMediaStream.listen((stream) => setState(() {
+            _remoteMediaStream = stream;
+          }))
+    ]);
 
     _joinRoom();
   }
@@ -35,7 +40,7 @@ class _RoomState extends State<Room> {
   Future _joinRoom() async {
     try {
       _roomController.joinRoom();
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       debugPrint("Failed to join into room: $e");
     }
   }
@@ -44,20 +49,49 @@ class _RoomState extends State<Room> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: _buildLocalView(),
+        child: _remoteMediaStream == null
+            ? _buildLocalView()
+            : _buildRemoteAndLocalView(),
       ),
     );
   }
 
-  _buildLocalView() {
+  Widget _buildRemoteAndLocalView() {
+    return Stack(
+      children: <Widget>[
+        _buildRemoteView(),
+        Positioned(
+          right: 16.0,
+          top: 48.0,
+          width: 100,
+          height: 75,
+          child: _buildLocalView(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocalView() {
     return _localMediaStream == null
         ? Text("Waiting for camera...")
         : MediaStreamView(source: _localMediaStream);
   }
 
+  Widget _buildRemoteView() => _remoteMediaStream != null
+      ? MediaStreamView(source: _remoteMediaStream)
+      : Container(
+          color: Colors.black,
+          child: Center(
+            child: Text(
+              "Waiting for remote peer..",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+
   @override
   void dispose() {
-    _localMediaStreamSubscription?.cancel();
+    _subscriptions.forEach((s) => s.cancel());
     _roomController.leaveRoom();
     super.dispose();
   }

@@ -114,6 +114,7 @@ class RoomController {
   }
 
   Future _handleBye() async {
+    _remoteMediaStreamController.add(null);
     await _rtcPeerConnection.removeMediaStream(_localMediaStream);
     _cancelSubscriptions();
     _disposeSignaling();
