@@ -152,7 +152,7 @@ class RtcPeerConnectionFactoryBackend(
             Log.d(tag, "onRemoveStream($stream)")
             val mediaStreamBackend = backendRegistry.all
                 .filterIsInstance(MediaStreamBackend::class.java)
-                .first { it.mediaStream.id == stream.id }
+                .first { it.mediaStream == stream }
             uiThread {
                 eventSink?.success(
                     mapOf(
