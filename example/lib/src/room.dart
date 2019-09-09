@@ -59,12 +59,13 @@ class _RoomState extends State<Room> {
   Widget _buildRemoteAndLocalView() {
     return Stack(
       children: <Widget>[
-        _buildRemoteView(),
+        Container(color: Colors.black),
+        Center(child: _buildRemoteView()),
         Positioned(
           right: 16.0,
           top: 48.0,
           width: 100,
-          height: 75,
+          height: 100,
           child: _buildLocalView(),
         ),
       ],
@@ -74,11 +75,16 @@ class _RoomState extends State<Room> {
   Widget _buildLocalView() {
     return _localMediaStream == null
         ? Text("Waiting for camera...")
-        : MediaStreamView(source: _localMediaStream);
+        : FittedBox(
+            fit: BoxFit.fitWidth,
+            child: MediaStreamView(source: _localMediaStream));
   }
 
   Widget _buildRemoteView() => _remoteMediaStream != null
-      ? MediaStreamView(source: _remoteMediaStream)
+      ? FittedBox(
+          fit: BoxFit.fitWidth,
+          child: MediaStreamView(source: _remoteMediaStream),
+        )
       : Container(
           color: Colors.black,
           child: Center(
