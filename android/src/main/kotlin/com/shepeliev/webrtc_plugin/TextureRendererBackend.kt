@@ -4,6 +4,7 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.*
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.view.TextureRegistry
@@ -18,9 +19,6 @@ class TextureRendererBackend(
     private val backendRegistry: FlutterBackendRegistry
 ) : EglRenderer(""), FlutterBackend {
 
-    private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
-    private lateinit var texture: SurfaceTexture
-
     override val id: String = newStringId()
     override val methodHandlers: Map<String, MethodHandler<*>> = mapOf(
         "dispose" to ::disposeHandler
@@ -29,9 +27,21 @@ class TextureRendererBackend(
     val textureId: Long
         get() = textureEntry.id()
 
+    private lateinit var textureEntry: TextureRegistry.SurfaceTextureEntry
+    private lateinit var texture: SurfaceTexture
+    private val eventChannel = EventChannel(
+        registrar.messenger(),
+        "$METHOD_CHANNEL_NAME::$id/events"
+    )
+    private var eventSink: EventChannel.EventSink? = null
+    private var frameWidth = 0
+    private var frameHeight = 0
+    private var frameRotation = 0
     private var disposed = false
 
     init {
+        backendRegistry.add(this)
+        setEventChannelHandler()
         uiThread {
             val textures = registrar.textures()
             textureEntry = textures.createSurfaceTexture()
@@ -43,12 +53,47 @@ class TextureRendererBackend(
                 init(eglBase.eglBaseContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
             }
         }.await()
-        backendRegistry.add(this)
+    }
+
+    private fun setEventChannelHandler() {
+        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(params: Any?, eventSink: EventChannel.EventSink) {
+                this@TextureRendererBackend.eventSink = eventSink
+            }
+
+            override fun onCancel(params: Any?) {
+                eventSink = null
+            }
+        })
     }
 
     override fun onFrame(frame: VideoFrame) {
-        texture.setDefaultBufferSize(frame.rotatedWidth, frame.rotatedHeight)
+        updateFrameGeometry(frame)
         super.onFrame(frame)
+    }
+
+    private fun updateFrameGeometry(frame: VideoFrame) {
+        val currentWidth = frame.rotatedWidth
+        val currentHeight = frame.rotatedHeight
+        val currentRotation = frame.rotation
+
+        if (currentWidth != frameWidth ||
+                currentHeight != frameHeight ||
+                currentRotation != frameRotation) {
+
+            frameWidth = currentWidth
+            frameHeight = currentHeight
+            frameRotation = currentRotation
+            texture.setDefaultBufferSize(frame.rotatedWidth, frame.rotatedHeight)
+            uiThread {
+                val geometry = mapOf(
+                    "width" to currentWidth,
+                    "height" to currentHeight,
+                    "rotation" to currentRotation
+                )
+                eventSink?.success(geometry)
+            }
+        }
     }
 
     @Suppress("UNUSED_PARAMETER")

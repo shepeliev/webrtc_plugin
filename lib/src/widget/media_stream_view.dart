@@ -17,6 +17,7 @@ class MediaStreamView extends StatefulWidget {
 class _MediaStreamViewState extends State<MediaStreamView> {
   final MediaStream _mediaStream;
   TextureRenderer _textureRenderer;
+  FrameGeometry _frameGeometry;
 
   _MediaStreamViewState(this._mediaStream);
 
@@ -39,6 +40,12 @@ class _MediaStreamViewState extends State<MediaStreamView> {
       await renderer.dispose();
       return;
     }
+
+    renderer.frameGeometry.listen((geometry) {
+      setState(() {
+        _frameGeometry = geometry;
+      });
+    });
 
     setState(() {
       _textureRenderer = renderer;
@@ -63,6 +70,14 @@ class _MediaStreamViewState extends State<MediaStreamView> {
   }
 
   Widget _buildTextureView() {
-    return Texture(textureId: _textureRenderer.textureId);
+    if (_frameGeometry == null) return Container();
+    if (_frameGeometry.width == 0 || _frameGeometry.height == 0) {
+      return Container();
+    }
+
+    return SizedBox(
+        width: _frameGeometry.width.toDouble(),
+        height: _frameGeometry.height.toDouble(),
+        child: Texture(textureId: _textureRenderer.textureId));
   }
 }
