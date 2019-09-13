@@ -34,6 +34,7 @@ class TextureRendererBackendFactoryTest {
     fun setUp() {
         ShadowBuild.setManufacturer("robolectric")
         whenever(registrar.textures()) doReturn textureRegistry
+        whenever(registrar.messenger()) doReturn mock()
         whenever(textureRegistry.createSurfaceTexture()) doReturn textureEntry
         whenever(textureEntry.id()) doReturn textureId
         whenever(textureEntry.surfaceTexture()) doReturn texture
