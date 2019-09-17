@@ -87,18 +87,12 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceCandidate(iceCandidate: IceCandidate) {
             Log.d(tag, "onIceCandidate($iceCandidate)")
-            uiThread {
-                eventSink?.success(
-                    mapOf(
-                        "type" to "iceCandidate",
-                        "iceCandidate" to iceCandidate.toMap()
-                    )
-                )
-            }
+            postEvent("iceCandidate", iceCandidate.toMap())
         }
 
         override fun onDataChannel(dataChannel: DataChannel) {
             Log.d(tag, "onDataChannel($dataChannel)")
+            // TODO: implement supporting data channel
         }
 
         override fun onIceConnectionReceivingChange(receiving: Boolean) {
@@ -107,45 +101,28 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onIceConnectionChange(newState: PeerConnection.IceConnectionState) {
             Log.d(tag, "onIceConnectionChange($newState)")
-            uiThread {
-                eventSink?.success(
-                    mapOf(
-                        "type" to "iceConnectionStateChange",
-                        "state" to newState.toString()
-                    )
-                )
-            }
+            postEvent("iceConnectionChange", newState.toString())
         }
 
         override fun onIceGatheringChange(newState: PeerConnection.IceGatheringState) {
             Log.d(tag, "onIceGatheringChange($newState)")
+            postEvent("iceGatheringChange", newState.toString())
         }
 
         override fun onAddStream(stream: MediaStream) {
             Log.d(tag, "onAddStream($stream)")
             val mediaStreamBackend = MediaStreamBackend(stream, null, backendRegistry)
-            uiThread {
-                eventSink?.success(
-                    mapOf(
-                        "type" to "addMediaStream",
-                        "mediaStream" to mediaStreamBackend.toMap()
-                    )
-                )
-            }
+            postEvent("addStream", mediaStreamBackend.toMap())
         }
 
         override fun onSignalingChange(newState: PeerConnection.SignalingState) {
             Log.d(tag, "onSignalingChange($newState)")
+            postEvent("signalingChange", newState.toString())
         }
 
         override fun onIceCandidatesRemoved(iceCandidates: Array<out IceCandidate>) {
             Log.d(tag, "onIceCandidatesRemoved(${iceCandidates.contentToString()}")
-            uiThread {
-                eventSink?.success(mapOf(
-                    "type" to "removeIceCandidates",
-                    "iceCandidates" to iceCandidates.map { it.toMap() }
-                ))
-            }
+            postEvent("iceCandidatesRemoved", iceCandidates.map { it.toMap() })
         }
 
         override fun onRemoveStream(stream: MediaStream) {
@@ -153,14 +130,7 @@ class RtcPeerConnectionFactoryBackend(
             val mediaStreamBackend = backendRegistry.all
                 .filterIsInstance(MediaStreamBackend::class.java)
                 .first { it.mediaStream == stream }
-            uiThread {
-                eventSink?.success(
-                    mapOf(
-                        "type" to "addMediaStream",
-                        "mediaStream" to mediaStreamBackend.toMap()
-                    )
-                )
-            }
+            postEvent("removeStream", mediaStreamBackend.toMap())
         }
 
         override fun onRenegotiationNeeded() {
@@ -177,5 +147,9 @@ class RtcPeerConnectionFactoryBackend(
             "sdp" to sdp,
             "serverUrl" to serverUrl
         )
+
+        private fun postEvent(type: String, data: Any?) {
+            uiThread { eventSink?.success(mapOf("type" to type, "data" to data)) }
+        }
     }
 }

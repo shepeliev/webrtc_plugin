@@ -14,59 +14,11 @@ class RtcPeerConnection {
   final MethodChannel _channel;
   final Stream<dynamic> _eventStream;
 
-  Stream<IceCandidate> get iceCandidates => _eventStream
-      .where((event) => event['type'] == 'iceCandidate')
-      .map((event) => IceCandidate.fromMap(event['iceCandidate']));
-
-  Stream<List<IceCandidate>> get removedIceCandidates => _eventStream
-      .where((event) => event['type'] == 'removeIceCandidates')
-      .map((event) => event['iceCandidates'] as List)
-      .map((candidates) =>
-          candidates.map((item) => IceCandidate.fromMap(item)).toList());
-
-  Stream<IceConnectionState> get iceConnectionState => _eventStream
-      .where((event) => event['type'] == 'iceConnectionStateChange')
-      .map((event) => _mapToIceConnectionState(event['state']));
-
-  Stream<RemoteMediaStream> get remoteMediaStream =>
-      _eventStream.where((event) {
-        return ['addMediaStream', 'removeMediaStream'].contains(event['type']);
-      }).map((event) {
-        final stream = MediaStream.fromMap(event['mediaStream']);
-        return event['type'] == 'addMediaStream'
-            ? RemoteMediaStream(adding: stream)
-            : RemoteMediaStream(removing: stream);
-      });
-
   RtcPeerConnection(this.id)
       : assert(id != null),
         _channel = MethodChannel('$channelName::$id'),
         _eventStream =
             EventChannel('$channelName::$id/events').receiveBroadcastStream();
-
-  IceConnectionState _mapToIceConnectionState(dynamic arguments) {
-    switch (arguments) {
-      case 'NEW':
-        return IceConnectionState.newConnection;
-      case 'CHECKING':
-        return IceConnectionState.checking;
-      case 'CONNECTED':
-        return IceConnectionState.connected;
-      case 'FAILED':
-        return IceConnectionState.failed;
-      case 'DISCONNECTED':
-        return IceConnectionState.disconnected;
-      case 'CLOSED':
-        return IceConnectionState.closed;
-      case 'COMPLETED':
-        return IceConnectionState.completed;
-      default:
-        throw PlatformException(
-          code: 'ILLEGAL_ARGUMENT',
-          message: 'Illegal ICE connection state $arguments',
-        );
-    }
-  }
 
   static Future<RtcPeerConnection> create([List<IceServer> iceServers]) async {
     final iceServersMap = iceServers?.map((it) => it.toMap())?.toList();
@@ -109,11 +61,26 @@ class RtcPeerConnection {
         iceCandidates.map((item) => item.toMap()).toList(),
       );
 
+  Stream<dynamic> on(RtcPeerConnectionEvent event) => _eventStream
+      .where((e) => e['type'] == event.toString().split('.').last)
+      .map((e) => e['data']);
+
   Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
 }
 
+enum RtcPeerConnectionEvent {
+  signalingChange,
+  iceConnectionChange,
+  iceGatheringChange,
+  iceCandidate,
+  iceCandidatesRemoved,
+  addStream,
+  removeStream,
+  dataChannel
+}
+
 enum IceConnectionState {
-  newConnection,
+  starting,
   checking,
   connected,
   failed,
@@ -122,9 +89,69 @@ enum IceConnectionState {
   completed
 }
 
-class RemoteMediaStream {
-  final MediaStream adding;
-  final MediaStream removing;
+IceConnectionState iceConnectionStateFromString(String state) {
+  assert(state != null);
+  switch (state.toUpperCase()) {
+    case 'NEW':
+      return IceConnectionState.starting;
+    case 'CHECKING':
+      return IceConnectionState.checking;
+    case 'CONNECTED':
+      return IceConnectionState.connected;
+    case 'FAILED':
+      return IceConnectionState.failed;
+    case 'DISCONNECTED':
+      return IceConnectionState.disconnected;
+    case 'CLOSED':
+      return IceConnectionState.closed;
+    case 'COMPLETED':
+      return IceConnectionState.completed;
+    default:
+      throw ArgumentError('Illegal ICE connection state $state');
+  }
+}
 
-  RemoteMediaStream({this.adding, this.removing});
+enum IceGatheringState { starting, gathering, complete }
+
+IceGatheringState iceGatheringStateFromString(String state) {
+  assert(state != null);
+  switch (state.toUpperCase()) {
+    case 'NEW':
+      return IceGatheringState.starting;
+    case 'GATHERING':
+      return IceGatheringState.gathering;
+    case 'COMPLETE':
+      return IceGatheringState.complete;
+    default:
+      throw ArgumentError('Illegal ICE gathering state $state');
+  }
+}
+
+enum SignalingState {
+  stable,
+  haveLocalOffer,
+  haveLocalPranswer,
+  haveRemoteOffer,
+  haveRemotePranswer,
+  closed
+}
+
+SignalingState signalingStateFromString(String state) {
+  assert(state != null);
+  switch(state.toUpperCase()) {
+    case 'STABLE':
+      return SignalingState.stable;
+    case 'HAVE_LOCAL_OFFER':
+      return SignalingState.haveLocalOffer;
+    case 'HAVE_LOCAL_PRANSWER':
+      return SignalingState.haveLocalPranswer;
+    case 'HAVE_REMOTE_OFFER':
+      return SignalingState.haveRemoteOffer;
+    case 'HAVE_REMOTE_PRANSWER':
+      return SignalingState.haveRemotePranswer;
+    case 'CLOSED':
+      return SignalingState.closed;
+    default:
+      throw ArgumentError('Illegal ICE gathering state $state');
+  }
 }

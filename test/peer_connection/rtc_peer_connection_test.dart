@@ -184,106 +184,164 @@ void main() {
         '[MethodCall(removeIceCandidates, [{sdpMid: ${iceCandidate.sdpMid}, sdpMLineIndex: ${iceCandidate.sdpMLineIndex}, sdp: ${iceCandidate.sdp}, serverUrl: ${iceCandidate.serverUrl}}])]');
   });
 
-  test('iceConnectionState', () async {
-    final peerConnection = RtcPeerConnection(id);
-    final states = <IceConnectionState>[];
-    final subscription =
-        peerConnection.iceConnectionState.listen((state) => states.add(state));
-
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'NEW'});
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CHECKING'});
-    await _postEvent(
-        {'type': 'iceConnectionStateChange', 'state': 'CONNECTED'});
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'FAILED'});
-    await _postEvent(
-        {'type': 'iceConnectionStateChange', 'state': 'DISCONNECTED'});
-    await _postEvent({'type': 'iceConnectionStateChange', 'state': 'CLOSED'});
-
-    expect(states, [
-      IceConnectionState.newConnection,
-      IceConnectionState.checking,
-      IceConnectionState.connected,
-      IceConnectionState.failed,
-      IceConnectionState.disconnected,
-      IceConnectionState.closed,
-    ]);
-    subscription.cancel();
-  });
-
-  test('iceCandidates', () async {
-    final peerConnection = RtcPeerConnection(id);
-    final candidates = <IceCandidate>[];
-    final subscription = peerConnection.iceCandidates
-        .listen((candidate) => candidates.add(candidate));
-
-    final iceCandidate = IceCandidate(
-      randomString(),
-      randomInt(max: 1000),
-      randomString(),
-      randomString(),
-    );
-    await _postEvent({
-      'type': 'iceCandidate',
-      'iceCandidate': iceCandidate.toMap(),
-    });
-
-    expect(candidates, [iceCandidate]);
-    subscription.cancel();
-  });
-
-  test('removedIceCandidates', () async {
-    final peerConnection = RtcPeerConnection(id);
-    final removedCandidates = <List<IceCandidate>>[];
-    final subscription = peerConnection.removedIceCandidates
-        .listen((candidates) => removedCandidates.add(candidates));
-
-    final iceCandidate = IceCandidate(
-        randomString(), randomInt(max: 1000), randomString(), randomString());
-    await _postEvent({
-      'type': 'removeIceCandidates',
-      'iceCandidates': [iceCandidate.toMap()],
-    });
-
-    expect(removedCandidates, [
-      [iceCandidate]
-    ]);
-    subscription.cancel();
-  });
-
-  group('remoteMediaStream', () {
-    test('adding', () async {
+  group('onEvent', () {
+    test('iceConnectionState', () async {
       final peerConnection = RtcPeerConnection(id);
-      final remoteStreams = <RemoteMediaStream>[];
-      final subscription = peerConnection.remoteMediaStream
-          .listen((stream) => remoteStreams.add(stream));
+      final states = <IceConnectionState>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.iceConnectionChange)
+          .map((d) => iceConnectionStateFromString(d))
+          .listen((state) => states.add(state));
 
-      final mediaStreamId = randomString();
-      final mediaStream = MediaStream(mediaStreamId);
-      await _postEvent({
-        'type': 'addMediaStream',
-        'mediaStream': mediaStream.toMap(),
-      });
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'NEW'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'CHECKING'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'CONNECTED'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'FAILED'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'DISCONNECTED'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'CLOSED'});
+      await _postEvent({'type': 'iceConnectionChange', 'data': 'COMPLETED'});
 
-      expect(remoteStreams[0].adding, mediaStream);
-      expect(remoteStreams[0].removing, isNull);
+      expect(states, [
+        IceConnectionState.starting,
+        IceConnectionState.checking,
+        IceConnectionState.connected,
+        IceConnectionState.failed,
+        IceConnectionState.disconnected,
+        IceConnectionState.closed,
+        IceConnectionState.completed,
+      ]);
       subscription.cancel();
     });
 
-    test('removing', () async {
+    test('iceGatheringState', () async {
       final peerConnection = RtcPeerConnection(id);
-      final remoteStreams = <RemoteMediaStream>[];
-      final subscription = peerConnection.remoteMediaStream
+      final states = <IceGatheringState>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.iceGatheringChange)
+          .map((d) => iceGatheringStateFromString(d))
+          .listen((state) => states.add(state));
+
+      await _postEvent({'type': 'iceGatheringChange', 'data': 'NEW'});
+      await _postEvent({'type': 'iceGatheringChange', 'data': 'GATHERING'});
+      await _postEvent({'type': 'iceGatheringChange', 'data': 'COMPLETE'});
+
+      expect(states, [
+        IceGatheringState.starting,
+        IceGatheringState.gathering,
+        IceGatheringState.complete,
+      ]);
+      subscription.cancel();
+    });
+
+    test('signalingChange', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final states = <SignalingState>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.signalingChange)
+          .map((d) => signalingStateFromString(d))
+          .listen((state) => states.add(state));
+
+      await _postEvent({'type': 'signalingChange', 'data': 'STABLE'});
+      await _postEvent({'type': 'signalingChange', 'data': 'HAVE_LOCAL_OFFER'});
+      await _postEvent(
+          {'type': 'signalingChange', 'data': 'HAVE_LOCAL_PRANSWER'});
+      await _postEvent(
+          {'type': 'signalingChange', 'data': 'HAVE_REMOTE_OFFER'});
+      await _postEvent(
+          {'type': 'signalingChange', 'data': 'HAVE_REMOTE_PRANSWER'});
+      await _postEvent({'type': 'signalingChange', 'data': 'CLOSED'});
+
+      expect(states, [
+        SignalingState.stable,
+        SignalingState.haveLocalOffer,
+        SignalingState.haveLocalPranswer,
+        SignalingState.haveRemoteOffer,
+        SignalingState.haveRemotePranswer,
+        SignalingState.closed,
+      ]);
+      subscription.cancel();
+    });
+
+    test('iceCandidate', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final candidates = <IceCandidate>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.iceCandidate)
+          .map((data) => IceCandidate.fromMap(data))
+          .listen((candidate) => candidates.add(candidate));
+
+      final iceCandidate = IceCandidate(
+        randomString(),
+        randomInt(max: 1000),
+        randomString(),
+        randomString(),
+      );
+      await _postEvent({
+        'type': 'iceCandidate',
+        'data': iceCandidate.toMap(),
+      });
+
+      expect(candidates, [iceCandidate]);
+      subscription.cancel();
+    });
+
+    test('removedIceCandidates', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final removedCandidates = <List<IceCandidate>>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.iceCandidatesRemoved)
+          .map((data) =>
+              data.map<IceCandidate>((c) => IceCandidate.fromMap(c)).toList())
+          .listen((candidates) => removedCandidates.add(candidates));
+
+      final iceCandidate = IceCandidate(
+          randomString(), randomInt(max: 1000), randomString(), randomString());
+      await _postEvent({
+        'type': 'iceCandidatesRemoved',
+        'data': [iceCandidate.toMap()],
+      });
+
+      expect(removedCandidates, [
+        [iceCandidate]
+      ]);
+      subscription.cancel();
+    });
+
+    test('addStream', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final remoteStreams = <MediaStream>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.addStream)
+          .map((data) => MediaStream.fromMap(data))
           .listen((stream) => remoteStreams.add(stream));
 
       final mediaStreamId = randomString();
       final mediaStream = MediaStream(mediaStreamId);
       await _postEvent({
-        'type': 'removeMediaStream',
-        'mediaStream': mediaStream.toMap(),
+        'type': 'addStream',
+        'data': mediaStream.toMap(),
       });
 
-      expect(remoteStreams[0].adding, isNull);
-      expect(remoteStreams[0].removing, mediaStream);
+      expect(remoteStreams[0], mediaStream);
+      subscription.cancel();
+    });
+
+    test('removeStream', () async {
+      final peerConnection = RtcPeerConnection(id);
+      final remoteStreams = <MediaStream>[];
+      final subscription = peerConnection
+          .on(RtcPeerConnectionEvent.removeStream)
+          .map(((data) => MediaStream.fromMap(data)))
+          .listen((stream) => remoteStreams.add(stream));
+
+      final mediaStreamId = randomString();
+      final mediaStream = MediaStream(mediaStreamId);
+      await _postEvent({
+        'type': 'removeStream',
+        'data': mediaStream.toMap(),
+      });
+
+      expect(remoteStreams[0], mediaStream);
       subscription.cancel();
     });
   });

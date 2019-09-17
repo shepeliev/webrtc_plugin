@@ -135,11 +135,21 @@ class RoomController {
   void _subscribeOnRtcPeerConnectionEvents() {
     if (_rtcPeerConnection == null) return;
     final subscriptions = [
-      _rtcPeerConnection.iceCandidates
+      _rtcPeerConnection
+          .on(RtcPeerConnectionEvent.iceCandidate)
+          .map((d) => IceCandidate.fromMap(d))
           .listen((candidate) => _sendIceCandidate(candidate)),
-      _rtcPeerConnection.remoteMediaStream.listen((remoteMediaStream) =>
-          _remoteMediaStreamController.add(remoteMediaStream.adding)),
-      _rtcPeerConnection.iceConnectionState.listen((state) {
+      _rtcPeerConnection
+          .on(RtcPeerConnectionEvent.addStream)
+          .map((d) => MediaStream.fromMap(d))
+          .listen((stream) => _remoteMediaStreamController.add(stream)),
+      _rtcPeerConnection
+          .on(RtcPeerConnectionEvent.removeStream)
+          .listen((_) => _remoteMediaStreamController.add(null)),
+      _rtcPeerConnection
+          .on(RtcPeerConnectionEvent.iceConnectionChange)
+          .map((d) => iceConnectionStateFromString(d))
+          .listen((state) {
         if (state == IceConnectionState.disconnected) {
           _handleBye();
         }
