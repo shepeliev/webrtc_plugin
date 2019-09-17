@@ -10,7 +10,7 @@ class SessionDescription {
 
   factory SessionDescription.fromMap(Map<dynamic, dynamic> map) {
     SessionDescriptionType type;
-    switch (map['type']) {
+    switch ((map['type'] as String).toUpperCase()) {
       case 'ANSWER':
         type = SessionDescriptionType.answer;
         break;
