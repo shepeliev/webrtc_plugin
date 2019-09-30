@@ -6,8 +6,10 @@ import 'media_stream.dart';
 Future<MediaStream> getUserMedia(
     [MediaStreamConstraints constraints =
         const MediaStreamConstraints()]) async {
-  final result = await tryInvokeMapMethod(
-      globalChannel, 'getUserMedia', constraints.toMap());
+  final result = await globalChannel.invokeMapMethod(
+    'getUserMedia',
+    constraints.toMap(),
+  );
   return MediaStream.fromMap(result);
 }
 

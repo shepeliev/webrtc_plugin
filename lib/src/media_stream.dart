@@ -36,14 +36,12 @@ class MediaStream extends Equatable {
   }
 
   Future<void> addRenderer(TextureRenderer renderer) async =>
-      await tryInvokeMethod(
-          _channel, 'addRenderer', {'rendererId': renderer.id});
+      await _channel.invokeMethod('addRenderer', {'rendererId': renderer.id});
 
-  Future<void> removeRenderer(TextureRenderer renderer) async =>
-      await tryInvokeMethod(
-          _channel, "removeRenderer", {'rendererId': renderer.id});
+  Future<void> removeRenderer(TextureRenderer renderer) async => await _channel
+      .invokeMethod("removeRenderer", {'rendererId': renderer.id});
 
-  Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
+  Future<void> dispose() async => await _channel.invokeMethod('dispose');
 
   Map<String, dynamic> toMap() {
     return {

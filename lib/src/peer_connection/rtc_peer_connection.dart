@@ -22,41 +22,42 @@ class RtcPeerConnection {
 
   static Future<RtcPeerConnection> create([List<IceServer> iceServers]) async {
     final iceServersMap = iceServers?.map((it) => it.toMap())?.toList();
-    final resultMap = await tryInvokeMapMethod(
-        globalChannel, "createPeerConnection", iceServersMap);
+    final resultMap = await globalChannel.invokeMapMethod(
+      "createPeerConnection",
+      iceServersMap,
+    );
     return RtcPeerConnection(resultMap['id']);
   }
 
   Future<bool> addMediaStream(MediaStream stream) async =>
-      await tryInvokeMethod(_channel, 'addMediaStream', stream.toMap());
+      await _channel.invokeMethod('addMediaStream', stream.toMap());
 
   Future<void> removeMediaStream(MediaStream stream) async =>
-      await tryInvokeMethod(_channel, 'removeMediaStream', stream.toMap());
+      await _channel.invokeMethod('removeMediaStream', stream.toMap());
 
   Future<SessionDescription> createOffer(SdpConstraints constraints) async {
     final resultMap =
-        await tryInvokeMapMethod(_channel, 'createOffer', constraints.toMap());
+        await _channel.invokeMapMethod('createOffer', constraints.toMap());
     return SessionDescription.fromMap(resultMap);
   }
 
   Future<SessionDescription> createAnswer(SdpConstraints constraints) async {
     final resultMap =
-        await tryInvokeMapMethod(_channel, 'createAnswer', constraints.toMap());
+        await _channel.invokeMapMethod('createAnswer', constraints.toMap());
     return SessionDescription.fromMap(resultMap);
   }
 
   Future<void> setLocalDescription(SessionDescription sdp) async =>
-      await tryInvokeMethod(_channel, 'setLocalDescription', sdp.toMap());
+      await _channel.invokeMethod('setLocalDescription', sdp.toMap());
 
   Future<void> setRemoteDescription(SessionDescription sdp) async =>
-      await tryInvokeMethod(_channel, 'setRemoteDescription', sdp.toMap());
+      await _channel.invokeMethod('setRemoteDescription', sdp.toMap());
 
   Future<bool> addIceCandidate(IceCandidate iceCandidate) async =>
-      await tryInvokeMethod(_channel, 'addIceCandidate', iceCandidate.toMap());
+      await _channel.invokeMethod('addIceCandidate', iceCandidate.toMap());
 
   Future<bool> removeIceCandidates(List<IceCandidate> iceCandidates) async =>
-      await tryInvokeMethod(
-        _channel,
+      await _channel.invokeMethod(
         'removeIceCandidates',
         iceCandidates.map((item) => item.toMap()).toList(),
       );
@@ -65,7 +66,7 @@ class RtcPeerConnection {
       .where((e) => e['type'] == event.toString().split('.').last)
       .map((e) => e['data']);
 
-  Future<void> dispose() async => await tryInvokeMethod(_channel, 'dispose');
+  Future<void> dispose() async => await _channel.invokeMethod('dispose');
 }
 
 enum RtcPeerConnectionEvent {
@@ -138,7 +139,7 @@ enum SignalingState {
 
 SignalingState signalingStateFromString(String state) {
   assert(state != null);
-  switch(state.toUpperCase()) {
+  switch (state.toUpperCase()) {
     case 'STABLE':
       return SignalingState.stable;
     case 'HAVE_LOCAL_OFFER':

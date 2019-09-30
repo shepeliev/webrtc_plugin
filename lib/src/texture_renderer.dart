@@ -22,7 +22,7 @@ class TextureRenderer {
 
   static Future<TextureRenderer> create() async {
     final Map<String, Object> result =
-        await tryInvokeMapMethod(globalChannel, 'createTextureRenderer');
+        await globalChannel.invokeMapMethod('createTextureRenderer');
     assert(result.containsKey('id'));
     assert(result.containsKey('textureId'));
     return TextureRenderer(result['id'], result['textureId']);
