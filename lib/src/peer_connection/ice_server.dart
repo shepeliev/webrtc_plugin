@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
-class IceServer {
+class IceServer extends Equatable {
   final List<String> urls;
   final String username;
   final String password;
@@ -9,38 +10,26 @@ class IceServer {
   final List<String> tlsAlpnProtocols;
   final List<String> tlsEllipticCurves;
 
-  IceServer(
-      {@required this.urls,
-      this.username = "",
-      this.password = "",
-      this.tlsCertPolicy = TlsCertPolicy.secure,
-      this.hostname = "",
-      this.tlsAlpnProtocols,
-      this.tlsEllipticCurves})
-      : assert(urls.isNotEmpty);
-
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is IceServer &&
-          runtimeType == other.runtimeType &&
-          listEquals(urls, other.urls) &&
-          username == other.username &&
-          password == other.password &&
-          tlsCertPolicy == other.tlsCertPolicy &&
-          hostname == other.hostname &&
-          listEquals(tlsAlpnProtocols, other.tlsAlpnProtocols) &&
-          listEquals(tlsEllipticCurves, other.tlsEllipticCurves);
+  List<Object> get props => [
+        urls,
+        username,
+        password,
+        tlsCertPolicy,
+        hostname,
+        tlsAlpnProtocols,
+        tlsEllipticCurves,
+      ];
 
-  @override
-  int get hashCode =>
-      urls.hashCode ^
-      username.hashCode ^
-      password.hashCode ^
-      tlsCertPolicy.hashCode ^
-      hostname.hashCode ^
-      tlsAlpnProtocols.hashCode ^
-      tlsEllipticCurves.hashCode;
+  IceServer({
+    @required this.urls,
+    this.username = "",
+    this.password = "",
+    this.tlsCertPolicy = TlsCertPolicy.secure,
+    this.hostname = "",
+    this.tlsAlpnProtocols,
+    this.tlsEllipticCurves,
+  }) : assert(urls.isNotEmpty);
 
   Map<String, dynamic> toMap() {
     final tlsCertPolicyVal = tlsCertPolicy.toString().split('.').last;

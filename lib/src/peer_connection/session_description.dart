@@ -1,8 +1,12 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 
-class SessionDescription {
+class SessionDescription extends Equatable {
   final SessionDescriptionType type;
   final String description;
+
+  @override
+  List<Object> get props => [type, description];
 
   const SessionDescription(this.type, this.description)
       : assert(type != null),
@@ -31,17 +35,6 @@ class SessionDescription {
 
   Map<String, dynamic> toMap() =>
       {'type': type.toString().split('.').last, 'description': description};
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SessionDescription &&
-          runtimeType == other.runtimeType &&
-          type == other.type &&
-          description == other.description;
-
-  @override
-  int get hashCode => type.hashCode ^ description.hashCode;
 
   @override
   String toString() {

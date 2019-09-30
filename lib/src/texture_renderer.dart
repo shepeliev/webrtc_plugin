@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
@@ -30,31 +31,21 @@ class TextureRenderer {
   Future<void> dispose() async => await _channel.invokeMethod('dispose');
 }
 
-class FrameGeometry {
+class FrameGeometry extends Equatable {
   final int width;
   final int height;
   final int rotation;
 
-  FrameGeometry(
-      {@required this.width, @required this.height, @required this.rotation})
-      : assert(width != null),
+  @override
+  List<Object> get props => [width, height, rotation];
+
+  FrameGeometry({
+    @required this.width,
+    @required this.height,
+    @required this.rotation,
+  })  : assert(width != null),
         assert(height != null),
         assert(rotation != null);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is FrameGeometry &&
-              runtimeType == other.runtimeType &&
-              width == other.width &&
-              height == other.height &&
-              rotation == other.rotation;
-
-  @override
-  int get hashCode =>
-      width.hashCode ^
-      height.hashCode ^
-      rotation.hashCode;
 
   @override
   String toString() {

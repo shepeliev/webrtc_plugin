@@ -1,7 +1,16 @@
-class SdpConstraints {
+import 'package:equatable/equatable.dart';
+
+class SdpConstraints extends Equatable {
   final bool offerToReceiveAudio;
   final bool offerToReceiveVideo;
   final bool iceRestart;
+
+  @override
+  List<Object> get props => [
+        offerToReceiveAudio,
+        offerToReceiveVideo,
+        iceRestart,
+      ];
 
   const SdpConstraints(
       {this.offerToReceiveAudio,
@@ -13,21 +22,6 @@ class SdpConstraints {
         'offerToReceiveVideo': offerToReceiveVideo,
         'iceRestart': iceRestart
       };
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SdpConstraints &&
-          runtimeType == other.runtimeType &&
-          offerToReceiveAudio == other.offerToReceiveAudio &&
-          offerToReceiveVideo == other.offerToReceiveVideo &&
-          iceRestart == other.iceRestart;
-
-  @override
-  int get hashCode =>
-      offerToReceiveAudio.hashCode ^
-      offerToReceiveVideo.hashCode ^
-      iceRestart.hashCode;
 
   @override
   String toString() {

@@ -1,17 +1,23 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
 
-class MediaStream {
+class MediaStream extends Equatable {
   final String id;
   final List<VideoTrack> videoTracks;
   final List<AudioTrack> audioTracks;
   final MethodChannel _channel;
 
-  MediaStream(this.id,
-      [this.videoTracks = const [], this.audioTracks = const []])
-      : _channel = MethodChannel('$channelName::$id');
+  @override
+  List<Object> get props => [id, videoTracks, audioTracks];
+
+  MediaStream(
+    this.id, [
+    this.videoTracks = const [],
+    this.audioTracks = const [],
+  ]) : _channel = MethodChannel('$channelName::$id');
 
   factory MediaStream.fromMap(Map<dynamic, dynamic> map) {
     assert(map != null);
@@ -48,28 +54,16 @@ class MediaStream {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is MediaStream &&
-              runtimeType == other.runtimeType &&
-              id == other.id &&
-              listEquals(videoTracks, other.videoTracks) &&
-              listEquals(audioTracks, other.audioTracks);
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      videoTracks.hashCode ^
-      audioTracks.hashCode;
-
-  @override
   String toString() {
     return 'MediaStream{id: $id, videoTracks: $videoTracks, audioTracks: $audioTracks}';
   }
 }
 
-class AudioTrack {
+class AudioTrack extends Equatable {
   final String id;
+
+  @override
+  List<Object> get props => [id];
 
   AudioTrack(this.id);
 
@@ -81,23 +75,16 @@ class AudioTrack {
   Map<String, dynamic> toMap() => {'id': id};
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is AudioTrack &&
-              runtimeType == other.runtimeType &&
-              id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
   String toString() {
     return 'AudioTrack{id: $id}';
   }
 }
 
-class VideoTrack {
+class VideoTrack extends Equatable {
   final String id;
+
+  @override
+  List<Object> get props => [id];
 
   VideoTrack(this.id);
 
@@ -107,16 +94,6 @@ class VideoTrack {
   }
 
   Map<String, dynamic> toMap() => {'id': id};
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is VideoTrack &&
-              runtimeType == other.runtimeType &&
-              id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
 
   @override
   String toString() {
