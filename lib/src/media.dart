@@ -1,7 +1,8 @@
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/src/utils/flexible_range.dart';
 
-import 'media_stream.dart';
+import 'media/media.dart';
+
 
 Future<MediaStream> getUserMedia(
     [MediaStreamConstraints constraints =

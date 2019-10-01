@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:webrtc_plugin/src/media_stream.dart';
+import 'package:webrtc_plugin/src/media/media.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 
 import 'ice_candidate.dart';

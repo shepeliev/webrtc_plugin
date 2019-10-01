@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:webrtc_plugin/src/media_stream.dart';
+import 'package:webrtc_plugin/webrtc_plugin.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/src/peer_connection/peer_connection.dart';
 import 'package:webrtc_plugin/src/utils/random.dart';

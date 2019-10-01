@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
