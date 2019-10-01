@@ -51,8 +51,8 @@ class Video extends Equatable {
   const Video.size({
     @required int width,
     @required int height,
-    int fps,
-    FacingMode facingMode,
+    int fps = IDEAL_FPS,
+    FacingMode facingMode = FacingMode.user,
   }) : this(
           minWidth: width,
           maxWidth: width,
@@ -66,8 +66,8 @@ class Video extends Equatable {
   const Video.max({
     @required int width,
     @required int height,
-    int fps,
-    FacingMode facingMode,
+    int fps = IDEAL_FPS,
+    FacingMode facingMode = FacingMode.user,
   }) : this(
           maxWidth: width,
           maxHeight: height,
