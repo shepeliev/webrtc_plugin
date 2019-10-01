@@ -44,10 +44,10 @@ class RoomController {
   }
 
   Future _initUserMedia() async {
-    _userMedia = await UserMedia.initialize(MediaConstraints(
+    _userMedia = await UserMedia.initialize(
       audio: Audio.enabled,
       video: Video.size(width: 640, height: 480),
-    ));
+    );
     _localMediaStream = await _userMedia.createLocalMediaStream();
     _localMediaStreamController.add(_localMediaStream);
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/media/audio.dart';
-import 'package:webrtc_plugin/src/media/media_constraints.dart';
 import 'package:webrtc_plugin/src/media/video.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 
@@ -9,14 +8,15 @@ import 'media.dart';
 abstract class UserMedia {
   UserMedia._();
 
-  static Future<UserMedia> initialize([
-    MediaConstraints constraints = const MediaConstraints(
-      audio: Audio.enabled,
-      video: Video.enabled,
-    ),
-  ]) async {
+  static Future<UserMedia> initialize({
+    audio: Audio.enabled,
+    video: Video.enabled,
+  }) async {
     final userMedia = _UserMedia(globalChannel);
-    await userMedia.initialize(constraints);
+    await userMedia.initialize({
+      'audio': audio?.toMap(),
+      'video': video?.toMap(),
+    });
     return userMedia;
   }
 
@@ -25,20 +25,13 @@ abstract class UserMedia {
   Future<void> dispose();
 }
 
-const _DEFAULT_MEDIA_CONSTRAINTS = MediaConstraints(
-  audio: Audio.enabled,
-  video: Video.enabled,
-);
-
 class _UserMedia implements UserMedia {
   final MethodChannel _channel;
 
   _UserMedia(this._channel);
 
-  Future<void> initialize([
-    MediaConstraints constraints = _DEFAULT_MEDIA_CONSTRAINTS,
-  ]) async {
-    await _channel.invokeMethod('initializeUserMedia', constraints.toMap());
+  Future<void> initialize(Map<String, dynamic> constraintsMap) async {
+    await _channel.invokeMethod('initializeUserMedia', constraintsMap);
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:webrtc_plugin/src/media/media_constraints.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
 
@@ -16,17 +15,17 @@ void main() {
   });
 
   test('initialize should call channel method with correct params', () async {
-    // arrange
-    final defaultConstraints = MediaConstraints();
-
     // act
-    await UserMedia.initialize(defaultConstraints);
+    await UserMedia.initialize(audio: Audio.enabled, video: Video.enabled);
 
     // assert
     final call =
         verify(methodHandler.call(captureAny)).captured.single as MethodCall;
     expect(call.method, 'initializeUserMedia');
-    expect(call.arguments, defaultConstraints.toMap());
+    expect(call.arguments, {
+      'audio': Audio.enabled.toMap(),
+      'video': Video.enabled.toMap(),
+    });
   });
 
   test(
