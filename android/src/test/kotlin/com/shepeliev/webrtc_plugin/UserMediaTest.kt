@@ -13,41 +13,41 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.webrtc.*
 
 @RunWith(MockitoJUnitRunner::class)
-class MediaBackendTest {
+class UserMediaTest {
 
     @Mock private lateinit var peerConnectionFactory: PeerConnectionFactory
     @Mock private lateinit var videoCapturerFactory: VideoCapturerFactory
     @Mock private lateinit var backendRegistry: FlutterBackendRegistry
     @Mock private lateinit var audioSource: AudioSource
     @Mock private lateinit var videoSource: VideoSource
-    @Mock private lateinit var mediaStreamBackendFactory: MediaBackend.MediaStreamBackendFactory
+    @Mock private lateinit var userMediaStreamFactory: UserMedia.MediaStreamBackendFactory
     @Mock private lateinit var videoTrack: VideoTrack
     @Mock private lateinit var audioTrack: AudioTrack
 
-    private lateinit var mediaBackend: MediaBackend
+    private lateinit var userMedia: UserMedia
 
     @Before
     fun setUp() {
         whenever(videoTrack.id()) doReturn "videoTrack::42"
         whenever(audioTrack.id()) doReturn "audioTrack::42"
-        mediaBackend = MediaBackend(
+        userMedia = UserMedia(
             peerConnectionFactory,
             videoCapturerFactory,
             backendRegistry,
-            mediaStreamBackendFactory
+            userMediaStreamFactory
         )
     }
 
     @Test
     fun isGlobal() {
-        assertThat(mediaBackend.isGlobal).isTrue()
+        assertThat(userMedia.isGlobal).isTrue()
     }
 
     @Test
     @Suppress("UNCHECKED_CAST")
     fun getUserMedia() {
         stubMediaStreamBackendFactory()
-        val handler = mediaBackend.methodHandlers.getValue("getUserMedia")
+        val handler = userMedia.methodHandlers.getValue("getUserMedia")
 
         val videoConstraints = mapOf(
             "width" to mapOf("min" to 640, "ideal" to 1280, "max" to 1280),
@@ -71,7 +71,7 @@ class MediaBackendTest {
     @Suppress("UNCHECKED_CAST")
     fun getUserMedia_without_audio() {
         stubMediaStreamBackendFactory()
-        val handler = mediaBackend.methodHandlers.getValue("getUserMedia")
+        val handler = userMedia.methodHandlers.getValue("getUserMedia")
 
         val videoConstraints = mapOf(
             "width" to mapOf("min" to 640, "ideal" to 1280, "max" to 1280),
@@ -95,7 +95,7 @@ class MediaBackendTest {
     @Suppress("UNCHECKED_CAST")
     fun getUserMedia_without_video() {
         stubMediaStreamBackendFactory()
-        val handler = mediaBackend.methodHandlers.getValue("getUserMedia")
+        val handler = userMedia.methodHandlers.getValue("getUserMedia")
 
         val constraints = mapOf("audio" to true)
         val resultMap = handler(MethodCall("getUserMedia", constraints)) as Map<String, Any>
@@ -112,7 +112,7 @@ class MediaBackendTest {
     @Test(expected = IllegalArgumentException::class)
     fun getUserMedia_without_video_either_audio() {
         stubMediaStreamBackendFactory()
-        val handler = mediaBackend.methodHandlers.getValue("getUserMedia")
+        val handler = userMedia.methodHandlers.getValue("getUserMedia")
 
         handler(MethodCall("getUserMedia", null))
     }
@@ -120,7 +120,7 @@ class MediaBackendTest {
     private fun stubMediaStreamBackendFactory() {
         whenever(peerConnectionFactory.createVideoSource(any())) doReturn videoSource
         whenever(peerConnectionFactory.createAudioSource(any())) doReturn audioSource
-        whenever(mediaStreamBackendFactory.createMediaStreamBackend(anyOrNull(), anyOrNull(), anyOrNull())) doAnswer {
+        whenever(userMediaStreamFactory.createMediaStreamBackend(anyOrNull(), anyOrNull(), anyOrNull())) doAnswer {
             val videoTrackArg = it.arguments[1]?.let { this.videoTrack }
             val audioTrackArg = it.arguments[2]?.let { this.audioTrack }
             stubMediaStreamBackend(videoTrackArg, audioTrackArg)
@@ -149,27 +149,27 @@ class MediaBackendTest {
         whenever(peerConnectionFactory.createAudioSource(any())) doReturn audioSource
         val methodCall = MethodCall("getUserMedia", mapOf("audio" to true))
 
-        assertThat(mediaBackend.createAudioSource(methodCall)).isEqualTo(audioSource)
+        assertThat(userMedia.createAudioSource(methodCall)).isEqualTo(audioSource)
     }
 
     @Test
     fun createAudioSource_audio_disabled() {
         val methodCall = MethodCall("getUserMedia", mapOf("audio" to false))
 
-        assertThat(mediaBackend.createAudioSource(methodCall)).isNull()
+        assertThat(userMedia.createAudioSource(methodCall)).isNull()
     }
 
     @Test
     fun createAudioSource_audio_null() {
         val methodCall = MethodCall("getUserMedia", mapOf("audio" to null))
 
-        assertThat(mediaBackend.createAudioSource(methodCall)).isNull()
+        assertThat(userMedia.createAudioSource(methodCall)).isNull()
     }
 
     @Test
     fun createAudioSource_audio_absent() {
         val methodCall = MethodCall("getUserMedia", null)
 
-        assertThat(mediaBackend.createAudioSource(methodCall)).isNull()
+        assertThat(userMedia.createAudioSource(methodCall)).isNull()
     }
 }

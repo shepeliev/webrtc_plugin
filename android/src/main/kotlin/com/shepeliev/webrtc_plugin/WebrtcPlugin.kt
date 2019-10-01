@@ -30,7 +30,7 @@ object WebrtcPlugin {
         val globalPlugins = listOf(
             TextureRendererBackendFactory(registrar, eglBase, backendRegistry),
             RtcPeerConnectionFactoryBackend(registrar, peerConnectionFactory, backendRegistry),
-            MediaBackend(
+            UserMedia(
                 peerConnectionFactory,
                 DefaultVideoCapturerFactory(registrar.context(), eglBase),
                 backendRegistry
