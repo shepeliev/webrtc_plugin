@@ -9,7 +9,6 @@ import '../utils.dart';
 
 void main() {
   MockMethodHandler methodHandler;
-  UserMedia userMedia;
 
   setUp(() {
     methodHandler = MockMethodHandler();
