@@ -41,7 +41,7 @@ object WebrtcPlugin {
         registrar.addViewDestroyListener {
             disposeTextureRendererBackends(backendRegistry)
             disposeRtcPeerConnectionBackends(backendRegistry)
-            disposeMdeiaStreamBackends(backendRegistry)
+            disposeMediaStreamBackends(backendRegistry)
             disposeGlobalBackends(globalPlugins)
             peerConnectionFactory.dispose()
             eglBase.release()
@@ -76,7 +76,7 @@ object WebrtcPlugin {
             .forEach { it.dispose() }
     }
 
-    private fun disposeMdeiaStreamBackends(backendRegistry: FlutterBackendRegistry) {
+    private fun disposeMediaStreamBackends(backendRegistry: FlutterBackendRegistry) {
         backendRegistry.all
             .filterIsInstance(MediaStreamBackend::class.java)
             .forEach { it.dispose() }
