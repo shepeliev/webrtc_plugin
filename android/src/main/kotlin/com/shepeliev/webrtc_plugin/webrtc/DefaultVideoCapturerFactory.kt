@@ -18,20 +18,12 @@ class DefaultVideoCapturerFactory(private val context: Context, eglBase: EglBase
             eglBase.eglBaseContext
         )
 
-    override fun createCameraVideoCapturer(
-        videoConstraints: Map<String, Any>,
-        capturerObserver: CapturerObserver
-    ): CameraVideoCapturer? {
-        // TODO implement initializing camera capturing according to videoConstraints
+    override fun createCameraVideoCapturer(capturerObserver: CapturerObserver): CameraVideoCapturer? {
         val cameraEnumerator = context.cameraEnumerator()
         return cameraEnumerator.createFrontCameraCapturer(CameraEventsHandler())?.apply {
             initialize(surfaceTextureHelper, context, capturerObserver)
-            startCapture(1280, 720, 30)
         } ?: run {
-            Log.e(
-                TAG,
-                "Could not create CameraVideoCapturer."
-            )
+            Log.e(TAG, "Could not create CameraVideoCapturer.")
             return null
         }
     }

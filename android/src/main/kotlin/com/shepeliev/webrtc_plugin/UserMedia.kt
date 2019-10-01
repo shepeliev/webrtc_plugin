@@ -1,97 +1,114 @@
 package com.shepeliev.webrtc_plugin
 
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import com.shepeliev.webrtc_plugin.plugin.FlutterBackendRegistry
 import com.shepeliev.webrtc_plugin.plugin.GlobalFlutterBackend
 import com.shepeliev.webrtc_plugin.plugin.MethodHandler
 import com.shepeliev.webrtc_plugin.plugin.newStringId
 import com.shepeliev.webrtc_plugin.webrtc.VideoCapturerFactory
 import io.flutter.plugin.common.MethodCall
-import org.webrtc.AudioSource
-import org.webrtc.MediaConstraints
-import org.webrtc.PeerConnectionFactory
-import org.webrtc.VideoSource
+import org.webrtc.*
 
 class UserMedia(
     private val peerConnectionFactory: PeerConnectionFactory,
     private val videoCapturerFactory: VideoCapturerFactory,
-    private val backendRegistry: FlutterBackendRegistry,
-    private val mediaStreamBackendFactory: MediaStreamBackendFactory = MediaStreamBackendFactory(
-        peerConnectionFactory,
-        videoCapturerFactory,
-        backendRegistry
-    )
+    private val backendRegistry: FlutterBackendRegistry
 ) : GlobalFlutterBackend {
 
+    private var isInitialized = false
+    private var audioSource: AudioSource? = null
+    private var videoSource: VideoSource? = null
+    private var videoCapturer: CameraVideoCapturer? = null
+
     override val methodHandlers: Map<String, MethodHandler<*>> =
-        mapOf("getUserMedia" to ::getUserMedia)
+        mapOf(
+            "initializeUserMedia" to ::initializeUserMedia,
+            "createLocalMediaStream" to ::createLocalMediaStream,
+            "disposeUserMedia" to ::disposeUserMedia
+        )
 
-    private fun getUserMedia(methodCall: MethodCall): Map<String, Any> {
-        require(methodCall.hasArgument("audio") || methodCall.hasArgument("video")) {
-            "At least audio or video media must be requested."
-        }
-
+    private fun initializeUserMedia(methodCall: MethodCall): Nothing? {
+        check(!isInitialized) { "User media already initialized." }
+        val audioConstraints = methodCall.argument<Map<String, Any>>("audio")
         val videoConstraints = methodCall.argument<Map<String, Any>>("video")
-        val videoSource = videoConstraints
-            ?.let { peerConnectionFactory.createVideoSource(false) }
-        val audioSource = createAudioSource(methodCall)
-        val mediaStreamBackend = mediaStreamBackendFactory.createMediaStreamBackend(
-            videoConstraints,
-            videoSource,
-            audioSource
-        )
-        val mediaStream = mediaStreamBackend.mediaStream
-        return mapOf(
-            "id" to mediaStreamBackend.id,
-            "audioTracks" to mediaStream.audioTracks.map { mapOf("id" to it.id()) },
-            "videoTracks" to mediaStream.videoTracks.map { mapOf("id" to it.id()) }
-        )
+        createAudioSource(audioConstraints)
+        createVideoSource(videoConstraints)
+        createVideoCapturer()
+        startCapture(videoConstraints)
+        isInitialized = true
+        return null
     }
 
-    @VisibleForTesting
-    fun createAudioSource(methodCall: MethodCall): AudioSource? {
-        val audioEnabled = methodCall.argument<Boolean>("audio") ?: return null
-        return audioEnabled
-            .takeIf { it }
-            ?.let { peerConnectionFactory.createAudioSource(MediaConstraints()) }
+    private fun createVideoSource(constraints: Map<String, Any>?) {
+        videoSource = constraints?.let { peerConnectionFactory.createVideoSource(false) }
+    }
+
+    private fun createAudioSource(constraints: Map<String, Any>?) {
+        audioSource =
+            constraints?.let { peerConnectionFactory.createAudioSource(MediaConstraints()) }
+    }
+
+    private fun startCapture(videoConstraints: Map<String, Any>?) {
+        videoCapturer?.let {
+            val params = extractCaptureParams(videoConstraints!!)
+            it.startCapture(params.width, params.height, params.fps)
+        }
+    }
+
+    private fun createVideoCapturer() {
+        videoCapturer = videoSource?.let {
+            videoCapturerFactory.createCameraVideoCapturer(it.capturerObserver)
+        }
+    }
+
+    private fun extractCaptureParams(videoConstraints: Map<String, Any>): CaptureParams {
+        // TODO: implement respecting min and max values
+        val width = videoConstraints.getValue("minWidth") as Int
+        val height = videoConstraints.getValue("minHeight") as Int
+        val fps = videoConstraints.getValue("minFps") as Int
+        return CaptureParams(width, height, fps)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun createLocalMediaStream(methodCall: MethodCall): Map<String, Any> {
+        check(isInitialized) { "User media has not bee initialized yet!" }
+        val mediaStream = peerConnectionFactory.createLocalMediaStream(
+            "LocalMediaStream::${newStringId()}"
+        ).apply {
+            if (audioSource != null) {
+                val track = peerConnectionFactory.createAudioTrack(
+                    newStringId(),
+                    audioSource
+                )
+                addTrack(track)
+            }
+            if (videoSource != null) {
+                val track = peerConnectionFactory.createVideoTrack(
+                    newStringId(),
+                    videoSource
+                )
+                addTrack(track)
+            }
+        }
+        val flutterMediaStream = MediaStreamBackend(mediaStream, backendRegistry)
+        return flutterMediaStream.toMap()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun disposeUserMedia(methodCall: MethodCall): Nothing? {
+        dispose()
+        return null
     }
 
     override fun dispose() {
         Log.d(tag, "Disposing $this.")
-    }
-
-    class MediaStreamBackendFactory(
-        private val peerConnectionFactory: PeerConnectionFactory,
-        private val videoCapturerFactory: VideoCapturerFactory,
-        private val backendRegistry: FlutterBackendRegistry
-    ) {
-        fun createMediaStreamBackend(
-            videoConstraints: Map<String, Any>?,
-            videoSource: VideoSource?,
-            audioSource: AudioSource?
-        ): MediaStreamBackend {
-            check(audioSource != null || videoSource != null)
-            check(videoSource == null || videoConstraints != null)
-            val audioTrack = audioSource?.let {
-                peerConnectionFactory.createAudioTrack(newStringId(), it)
-            }
-            val videoTrack = videoSource?.let {
-                peerConnectionFactory.createVideoTrack(newStringId(), it)
-            }
-            val videoCapturer = videoSource?.let {
-                videoCapturerFactory.createCameraVideoCapturer(
-                    videoConstraints!!,
-                    it.capturerObserver
-                )
-            }
-            val mediaStream = peerConnectionFactory
-                .createLocalMediaStream("LocalMediaStream::${newStringId()}")
-                .apply {
-                    audioTrack?.let { addTrack(it) }
-                    videoTrack?.let { addTrack(it) }
-                }
-            return MediaStreamBackend(mediaStream, videoCapturer, backendRegistry)
-        }
+        videoCapturer?.dispose()
+        audioSource?.dispose()
+        audioSource = null
+        videoSource?.dispose()
+        videoSource = null
+        isInitialized = false
     }
 }
+
+private data class CaptureParams(val width: Int, val height: Int, val fps: Int)

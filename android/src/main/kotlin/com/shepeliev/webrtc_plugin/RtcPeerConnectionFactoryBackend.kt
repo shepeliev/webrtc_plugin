@@ -111,7 +111,7 @@ class RtcPeerConnectionFactoryBackend(
 
         override fun onAddStream(stream: MediaStream) {
             Log.d(tag, "onAddStream($stream)")
-            val mediaStreamBackend = MediaStreamBackend(stream, null, backendRegistry)
+            val mediaStreamBackend = MediaStreamBackend(stream, backendRegistry)
             postEvent("addStream", mediaStreamBackend.toMap())
         }
 

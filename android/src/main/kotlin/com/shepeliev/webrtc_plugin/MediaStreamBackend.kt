@@ -3,13 +3,11 @@ package com.shepeliev.webrtc_plugin
 import android.util.Log
 import com.shepeliev.webrtc_plugin.plugin.*
 import io.flutter.plugin.common.MethodCall
-import org.webrtc.CameraVideoCapturer
 import org.webrtc.MediaStream
 import org.webrtc.VideoSink
 
 class MediaStreamBackend(
     val mediaStream: MediaStream,
-    private val videoCapturer: CameraVideoCapturer?,
     private val backendRegistry: FlutterBackendRegistry
 ) : FlutterBackend {
     override val id: BackendId = newStringId()
@@ -30,7 +28,6 @@ class MediaStreamBackend(
         if (disposed) return
         Log.d(tag, "Disposing $this.")
         removeRenderers()
-        videoCapturer?.stopCapture()
         tryDisposeMediaStream()
         backendRegistry.remove(this)
         disposed = true
