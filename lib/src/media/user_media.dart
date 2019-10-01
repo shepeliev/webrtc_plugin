@@ -8,10 +8,7 @@ import 'media.dart';
 abstract class UserMedia {
   UserMedia._();
 
-  static Future<UserMedia> initialize({
-    audio: Audio.enabled,
-    video: Video.enabled,
-  }) async {
+  static Future<UserMedia> initialize({Audio audio, Video video}) async {
     final userMedia = _UserMedia(globalChannel);
     await userMedia.initialize({
       'audio': audio?.toMap(),

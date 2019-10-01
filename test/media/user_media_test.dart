@@ -14,18 +14,74 @@ void main() {
     globalChannel.setMockMethodCallHandler(methodHandler);
   });
 
-  test('initialize should call channel method with correct params', () async {
-    // act
-    await UserMedia.initialize(audio: Audio.enabled, video: Video.enabled);
+  group('initialize', () {
+    test(
+      'should call channel method with correct params when audio and video are enabled',
+      () async {
+        // act
+        await UserMedia.initialize(audio: Audio.enabled, video: Video.enabled);
 
-    // assert
-    final call =
-        verify(methodHandler.call(captureAny)).captured.single as MethodCall;
-    expect(call.method, 'initializeUserMedia');
-    expect(call.arguments, {
-      'audio': Audio.enabled.toMap(),
-      'video': Video.enabled.toMap(),
-    });
+        // assert
+        final call = verify(methodHandler.call(captureAny)).captured.single
+            as MethodCall;
+        expect(call.method, 'initializeUserMedia');
+        expect(call.arguments, {
+          'audio': Audio.enabled.toMap(),
+          'video': Video.enabled.toMap(),
+        });
+      },
+    );
+
+    test(
+      'should call channel method with correct params when only audio is enabled',
+      () async {
+        // act
+        await UserMedia.initialize(audio: Audio.enabled);
+
+        // assert
+        final call = verify(methodHandler.call(captureAny)).captured.single
+            as MethodCall;
+        expect(call.method, 'initializeUserMedia');
+        expect(call.arguments, {
+          'audio': Audio.enabled.toMap(),
+          'video': null,
+        });
+      },
+    );
+
+    test(
+      'should call channel method with correct params when only ideo are enabled',
+      () async {
+        // act
+        await UserMedia.initialize(video: Video.enabled);
+
+        // assert
+        final call = verify(methodHandler.call(captureAny)).captured.single
+            as MethodCall;
+        expect(call.method, 'initializeUserMedia');
+        expect(call.arguments, {
+          'audio': null,
+          'video': Video.enabled.toMap(),
+        });
+      },
+    );
+
+    test(
+      'should call channel method with correct params when neither audio nor video is enabled',
+      () async {
+        // act
+        await UserMedia.initialize();
+
+        // assert
+        final call = verify(methodHandler.call(captureAny)).captured.single
+            as MethodCall;
+        expect(call.method, 'initializeUserMedia');
+        expect(call.arguments, {
+          'audio': null,
+          'video': null,
+        });
+      },
+    );
   });
 
   test(
