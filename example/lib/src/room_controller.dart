@@ -44,7 +44,7 @@ class RoomController {
   }
 
   Future _initUserMedia() async {
-    _userMedia = await UserMedia.initialize(
+    _userMedia = await UserMedia.create(
       audio: Audio.enabled,
       video: Video.size(width: 640, height: 480),
     );

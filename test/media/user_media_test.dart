@@ -19,7 +19,7 @@ void main() {
       'should call channel method with correct params when audio and video are enabled',
       () async {
         // act
-        await UserMedia.initialize(audio: Audio.enabled, video: Video.enabled);
+        await UserMedia.create(audio: Audio.enabled, video: Video.enabled);
 
         // assert
         final call = verify(methodHandler.call(captureAny)).captured.single
@@ -36,7 +36,7 @@ void main() {
       'should call channel method with correct params when only audio is enabled',
       () async {
         // act
-        await UserMedia.initialize(audio: Audio.enabled);
+        await UserMedia.create(audio: Audio.enabled);
 
         // assert
         final call = verify(methodHandler.call(captureAny)).captured.single
@@ -53,7 +53,7 @@ void main() {
       'should call channel method with correct params when only ideo are enabled',
       () async {
         // act
-        await UserMedia.initialize(video: Video.enabled);
+        await UserMedia.create(video: Video.enabled);
 
         // assert
         final call = verify(methodHandler.call(captureAny)).captured.single
@@ -70,7 +70,7 @@ void main() {
       'should call channel method with correct params when neither audio nor video is enabled',
       () async {
         // act
-        await UserMedia.initialize();
+        await UserMedia.create();
 
         // assert
         final call = verify(methodHandler.call(captureAny)).captured.single
@@ -91,7 +91,7 @@ void main() {
       final mediaStream = MediaStream(randomString());
       when(methodHandler.call(any))
           .thenAnswer((_) async => mediaStream.toMap());
-      final userMedia = await UserMedia.initialize();
+      final userMedia = await UserMedia.create();
 
       // assert
       expect(await userMedia.createLocalMediaStream(), mediaStream);
@@ -105,7 +105,7 @@ void main() {
     'dispose should call channel method',
     () async {
       // arrange
-      final userMedia = await UserMedia.initialize();
+      final userMedia = await UserMedia.create();
 
       // act
       await userMedia.dispose();

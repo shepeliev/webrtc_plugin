@@ -8,14 +8,15 @@ import 'media.dart';
 abstract class UserMedia {
   UserMedia._();
 
-  static Future<UserMedia> initialize({Audio audio, Video video}) async {
+  factory UserMedia() => _UserMedia(globalChannel);
+
+  static Future<UserMedia> create({Audio audio, Video video}) async {
     final userMedia = _UserMedia(globalChannel);
-    await userMedia.initialize({
-      'audio': audio?.toMap(),
-      'video': video?.toMap(),
-    });
+    await userMedia.initialize(audio: audio, video: video);
     return userMedia;
   }
+
+  Future<void> initialize({Audio audio, Video video});
 
   Future<MediaStream> createLocalMediaStream();
 
@@ -27,8 +28,12 @@ class _UserMedia implements UserMedia {
 
   _UserMedia(this._channel);
 
-  Future<void> initialize(Map<String, dynamic> constraintsMap) async {
-    await _channel.invokeMethod('initializeUserMedia', constraintsMap);
+  @override
+  Future<void> initialize({Audio audio, Video video}) async {
+    await _channel.invokeMethod('initializeUserMedia', {
+      'audio': audio?.toMap(),
+      'video': video?.toMap(),
+    });
   }
 
   @override
