@@ -19,6 +19,7 @@ class RoomController {
 
   RoomParams _roomParams;
   bool _isInitiator;
+  UserMedia _userMedia;
   MediaStream _localMediaStream;
   Signaling _signaling;
   RtcPeerConnection _rtcPeerConnection;
@@ -43,7 +44,11 @@ class RoomController {
   }
 
   Future _initUserMedia() async {
-    _localMediaStream = await getUserMedia();
+    _userMedia = await UserMedia.initialize(MediaConstraints(
+      audio: Audio.enabled,
+      video: Video.size(width: 640, height: 480),
+    ));
+    _localMediaStream = await _userMedia.createLocalMediaStream();
     _localMediaStreamController.add(_localMediaStream);
   }
 
@@ -206,7 +211,7 @@ class RoomController {
     _cancelSubscriptions();
     _disposeSignaling();
     await _disposeRtcPeerConnection();
-    await _disposeLocalMediaStream();
+    await _disposeUserMedia();
   }
 
   void _disposeSignaling() {
@@ -224,8 +229,9 @@ class RoomController {
     _rtcPeerConnection = null;
   }
 
-  Future _disposeLocalMediaStream() async {
+  Future _disposeUserMedia() async {
     await _localMediaStream?.dispose();
+    await _userMedia?.dispose();
     _localMediaStream = null;
   }
 
