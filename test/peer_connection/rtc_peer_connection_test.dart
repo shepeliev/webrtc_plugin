@@ -322,7 +322,7 @@ void main() {
         'data': mediaStream.toMap(),
       });
 
-      expect(remoteStreams[0], mediaStream);
+      expect(remoteStreams[0].id, mediaStream.id);
       subscription.cancel();
     });
 
@@ -341,7 +341,7 @@ void main() {
         'data': mediaStream.toMap(),
       });
 
-      expect(remoteStreams[0], mediaStream);
+      expect(remoteStreams[0].id, mediaStream.id);
       subscription.cancel();
     });
   });

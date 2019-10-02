@@ -3,14 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:webrtc_plugin/src/method_channel.dart';
 import 'package:webrtc_plugin/webrtc_plugin.dart';
 
-class MediaStream extends Equatable {
+class MediaStream  {
   final String id;
   final List<VideoTrack> videoTracks;
   final List<AudioTrack> audioTracks;
   final MethodChannel _channel;
-
-  @override
-  List<Object> get props => [id, videoTracks, audioTracks];
 
   MediaStream(
     this.id, [

@@ -94,7 +94,7 @@ void main() {
       final userMedia = await UserMedia.create();
 
       // assert
-      expect(await userMedia.createLocalMediaStream(), mediaStream);
+      expect((await userMedia.createLocalMediaStream()).id, mediaStream.id);
       final call =
           verify(methodHandler.call(captureAny)).captured.last as MethodCall;
       expect(call.method, 'createLocalMediaStream');
